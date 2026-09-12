@@ -980,6 +980,30 @@ function analisePreJogoHTML(m, j){
         '<b>'+j.fora+':</b> '+linhaEq(j.fora)+'</div>';
     })()+
 
+    (function(){
+      const agg = eq => {
+        const j = {};
+        DETALHE_LIGA.forEach(d=>{ const e=d.eq&&d.eq[eq]; if(!e) return;
+          (e.jog||[]).forEach(p=>{ j[p.nome]=j[p.nome]||{min:0,g:0};
+            j[p.nome].min+=p.min||0; j[p.nome].g+=p.g||0; }); });
+        return j;
+      };
+      const linha = eq => {
+        const j = agg(eq), ns = Object.keys(j);
+        if (!ns.length) return null;
+        const gol = ns.filter(n=>j[n].g>0).sort((a,b)=>j[b].g-j[a].g).slice(0,3)
+          .map(n=>n+" ("+j[n].g+")").join(", ") || "—";
+        const uso = ns.sort((a,b)=>j[b].min-j[a].min).slice(0,3)
+          .map(n=>n+" "+j[n].min+"’").join(", ");
+        return "<b>"+eq+":</b> golos: "+gol+" · mais minutos: "+uso;
+      };
+      const lc = linha(j.casa), lf = linha(j.fora);
+      if (!lc && !lf) return "";
+      return secH("Referências dos plantéis · FBref, época corrente")+
+        '<div class="mono" style="font-size:9px;line-height:1.7">'+
+        (lc||"")+(lc&&lf?"<br>":"")+(lf||"")+'</div>';
+    })()+
+
     secH("Previsão do modelo")+
     '<div class="mono" style="font-size:9.5px">'+
     'Golos esperados: '+lc.toFixed(2)+' — '+lf.toFixed(2)+'<br>'+
@@ -1124,6 +1148,7 @@ window.__apifDetalhe = apifDetalheBenfica;
 /* ---- equipa em foco: Benfica ---- */
 const FOCO = "Benfica";
 const FOCO_EXTRA = []; // linha gerida por atualizar_placar.py — não editar à mão
+const DETALHE_LIGA = []; // linha gerida por atualizar_placar.py — não editar à mão
 const FOCO_JOGOS = [
   { comp:"Liga Europa (qual.)", jornada:null, adversario:"St. Gallen", onde:"casa", res:"5-0",
     marcadores:[], onze:[], supl:[], nota:"2.ª mão da eliminatória" },
@@ -1443,6 +1468,14 @@ async function carregarModelo(){
     aplicarContexto(CONTEXTO_SEED);
     refazerDC();
     if (FOCO_EXTRA.length && window.__aplicarFocoDC) window.__aplicarFocoDC(FOCO_EXTRA);
+    if (DETALHE_LIGA.length && window.__aplicarFocoDC){
+      const doFoco = DETALHE_LIGA.filter(d=>d.eq && d.eq[FOCO]).map(d=>{
+        const casa = d.c===FOCO;
+        return { jogo:[casa?d.f:d.c, casa?"casa":"fora", d.r, "Liga"],
+          onze:d.eq[FOCO].onze, suplentes_usados:d.eq[FOCO].supl, jogadores:d.eq[FOCO].jog };
+      });
+      if (doFoco.length) window.__aplicarFocoDC(doFoco);
+    }
     pintarFoco();
     setTimeout(()=>{ const c=document.getElementById("apifChave");
       if (c && c.value.trim() && !APIF.ok) apifLigar(); }, 800);
