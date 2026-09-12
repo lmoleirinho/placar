@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Placar — Liga Portugal Betclic 26/27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2D9CE; --paper-2:#EBCCC0; --ink:#191210; --ink-soft:#5C4740;
+    --rule:#D3AB9C; --europa:#1E5C3F; --descida:#A8172A; --ocre:#B87316;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,"Times New Roman",serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:18px 16px 60px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+
+  .masthead{border-bottom:3px solid var(--ink);padding-bottom:10px}
+  .kicker{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  h1{font-family:"Archivo Black","Arial Black",Impact,Haettenschweiler,sans-serif;font-size:clamp(38px,13vw,74px);line-height:.82;margin:8px 0 6px;letter-spacing:-.02em;text-transform:uppercase}
+  h1 span{color:var(--descida)}
+  .sub{font-size:15px;color:var(--ink-soft);margin:0}
+  .statusbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 0;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px}
+  .pill{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--ink);border-radius:999px;padding:4px 11px;text-transform:uppercase;letter-spacing:.1em}
+  .pip{width:7px;height:7px;border-radius:50%;background:var(--descida);flex:none}
+  .pip.on{background:var(--europa);animation:blink 2.2s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  button.refresh{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;background:var(--ink);color:var(--paper);border:none;border-radius:999px;padding:6px 14px;cursor:pointer}
+  button.refresh:hover{background:var(--descida)}
+  button.refresh:disabled{opacity:.45;cursor:default}
+  button:focus-visible{outline:2px solid var(--ocre);outline-offset:2px}
+  .stamp{color:var(--ink-soft)}
+
+  .sec{margin-top:34px}
+  .sec-h{display:flex;align-items:baseline;gap:10px;border-bottom:1.5px solid var(--ink);padding-bottom:5px;margin-bottom:14px}
+  .sec-h h2{font-family:"Archivo Black","Arial Black",Impact,sans-serif;font-size:17px;letter-spacing:.02em;text-transform:uppercase;margin:0}
+  .sec-h em{font-family:"IBM Plex Mono",ui-monospace,monospace;font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-left:auto;text-align:right}
+
+  .track{position:relative;background:var(--paper-2);border:1.5px solid var(--ink);padding:14px 12px 8px;overflow:hidden}
+  .lane{position:relative;height:var(--laneH,150px);margin-bottom:6px}
+  .runner{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;width:30px;height:20px;border:1.2px solid var(--ink);background:var(--paper);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;font-weight:600;transition:left .6s cubic-bezier(.4,0,.2,1)}
+  .runner.eur{background:var(--europa);color:#fff;border-color:var(--europa)}
+  .runner.des{background:var(--descida);color:#fff;border-color:var(--descida)}
+  .axis{display:flex;justify-content:space-between;border-top:1.5px solid var(--ink);padding-top:4px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;color:var(--ink-soft)}
+  .startline{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ink)}
+  .empty-note{font-size:14px;color:var(--ink-soft);padding:6px 2px 0;font-style:italic}
+
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px}
+  th{text-align:right;font-weight:400;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding:0 3px 6px;border-bottom:1.5px solid var(--ink)}
+  th.l,td.l{text-align:left}
+  td{padding:7px 3px;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap}
+  td.club{font-family:"Newsreader",Georgia,serif;font-size:15px;text-align:left;width:99%;overflow:hidden;text-overflow:ellipsis}
+  td.pos{font-weight:600;width:26px;position:relative;padding-left:9px;text-align:left}
+  tr.eur td.pos:before,tr.des td.pos:before,tr.po td.pos:before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:4px}
+  tr.eur td.pos:before{background:var(--europa)}
+  tr.po td.pos:before{background:var(--ocre)}
+  tr.des td.pos:before{background:var(--descida)}
+  td.pts{font-weight:600;font-size:14px}
+  .hide-s{display:none}
+  @media(min-width:560px){.hide-s{display:table-cell}}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .legend i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+
+  /* ---- painel analítico ---- */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tab{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:transparent;color:var(--ink);border:1.2px solid var(--ink);border-radius:999px;padding:5px 11px;cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+  .rowstat{display:grid;grid-template-columns:26px 1fr 46px;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--rule)}
+  .rowstat .sg{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9.5px;font-weight:600;color:var(--ink-soft)}
+  .rowstat .val{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;text-align:right;font-weight:600}
+  .barwrap{position:relative;height:15px;background:var(--paper-2);border:1px solid var(--rule)}
+  .bar{position:absolute;left:0;top:0;bottom:0;background:var(--ink);transition:width .5s ease}
+  .bar.eur{background:var(--europa)}
+  .bar.des{background:var(--descida)}
+  .bar.ocre{background:var(--ocre)}
+  .barwrap .lbl{position:absolute;left:6px;top:0;line-height:15px;font-family:"Newsreader",Georgia,serif;font-size:12.5px;color:var(--ink);mix-blend-mode:normal;white-space:nowrap;overflow:hidden;max-width:calc(100% - 10px)}
+  .barwrap .lbl.inv{color:var(--paper)}
+  .split{display:grid;grid-template-columns:1fr;gap:2px}
+  .miniH{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:16px 0 6px;border-bottom:1px solid var(--rule);padding-bottom:3px}
+  .note{font-size:13.5px;color:var(--ink-soft);margin:10px 0 0}
+  .formrow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--rule)}
+  .chips{display:flex;gap:3px}
+  .chip{width:17px;height:17px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;font-weight:600;border:1px solid var(--ink);background:var(--paper)}
+  .chip.V{background:var(--europa);color:#fff;border-color:var(--europa)}
+  .chip.D{background:var(--descida);color:#fff;border-color:var(--descida)}
+  .chip.E{background:var(--paper-2)}
+  .chip.n{opacity:.35}
+  .probgrid{display:grid;grid-template-columns:1fr repeat(3,44px);gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px}
+  .probgrid .nm{font-family:"Newsreader",Georgia,serif;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .probgrid .h{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);text-align:center}
+  .cellp{text-align:center;padding:2px 0;position:relative}
+  .cellp b{position:relative;font-weight:600}
+  .cellp:before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;background:var(--ocre);opacity:var(--o,0)}
+
+  .match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--rule)}
+  .match .home{text-align:right}
+  .match .away{text-align:left}
+  .match .team{font-size:14.5px}
+  .score{font-family:"Archivo Black","Arial Black",Impact,sans-serif;font-size:15px;background:var(--ink);color:var(--paper);padding:3px 9px;min-width:52px;text-align:center}
+  .score.pend{background:transparent;color:var(--ink-soft);border:1px solid var(--rule);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:400}
+  .mday{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-top:2px}
+
+  .prev{columns:2;column-gap:22px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px}
+  .prev div{break-inside:avoid;display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--rule)}
+  .prev span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prev .up{color:var(--europa)}
+  .err{border:1.5px solid var(--descida);background:rgba(168,23,42,.07);padding:10px 12px;font-size:14px;margin-top:12px}
+  footer{margin-top:40px;border-top:1.5px solid var(--ink);padding-top:10px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;color:var(--ink-soft);line-height:1.75}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker"><span>Liga Portugal Betclic · 93.ª edição · 18 clubes</span><span>Época 2026/27</span></div>
+    <h1>Placar<span>.</span></h1>
+    <p class="sub">Desempenho das equipas, jornada a jornada, com leitura estatística por baixo dos números.</p>
+    <div class="statusbar">
+      <span class="pill"><span class="pip" id="pip"></span><span id="state">a ligar</span></span>
+      <button class="refresh" id="btn">Actualizar agora</button>
+      <span class="stamp" id="stamp"></span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap">
+      <input id="apifChave" type="password" value="9d8490be448b4deae651c5490b963445" placeholder="chave API-Football (opcional)" style="font:10px ui-monospace,monospace;padding:3px 6px;border:1px solid var(--rule);background:transparent;color:var(--ink);width:210px">
+      <button onclick="window.__apifLigar&&window.__apifLigar()" style="font:10px ui-monospace,monospace;padding:3px 8px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer">Ligar API</button>
+      <span id="apifEstado" class="mono" style="font-size:9px;color:var(--ink-soft)"></span>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="sec-h"><h2>A corrida</h2><em id="raceHead">pontos acumulados</em></div>
+    <div class="track"><div class="lane" id="lane"><div class="startline"></div></div><div class="axis" id="axis"></div></div>
+    <p class="empty-note" id="raceNote"></p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Classificação</h2><em id="tabHead"></em></div>
+    <div id="tableBox"></div>
+    <div class="legend">
+      <span><i style="background:var(--europa)"></i>Europa</span>
+      <span><i style="background:var(--ocre)"></i>Play-off (16.º)</span>
+      <span><i style="background:var(--descida)"></i>Descida</span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Leitura estatística</h2><em id="anHead"></em></div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-v="forca" aria-selected="true">Índice de força</button>
+      <button class="tab" role="tab" data-v="ritmo" aria-selected="false">Ritmo</button>
+      <button class="tab" role="tab" data-v="forma" aria-selected="false">Forma</button>
+      <button class="tab" role="tab" data-v="efic" aria-selected="false">Eficiência</button>
+      <button class="tab" role="tab" data-v="proj" aria-selected="false">Projecção</button>
+    </div>
+    <div id="anBox"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Modelo Dixon-Coles</h2><em id="mdlHead">a carregar histórico…</em></div>
+    <div class="miniH">Mapa de performance · ataque e defesa ajustados ao adversário</div>
+    <div class="track" style="height:340px;position:relative" id="mdlMapa"></div>
+    <p class="note">Direita = ataque mais forte. Cima = defesa mais forte. As linhas tracejadas marcam a média da liga; o quadrante superior direito é onde vivem os candidatos.</p>
+    <div class="miniH">Previsões da próxima jornada · casa / empate / fora</div>
+    <div id="mdlPrev"></div>
+    <p class="note" id="mdlNota"></p>
+    <p class="note mono" style="font-size:10px" id="mdlInfo"></p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Jornada</h2><em id="rndHead"></em></div>\n    <p class="note" style="margin:-6px 0 10px">Horas de Lisboa e Eastern Time. Nos EUA, toda a Liga Portugal 2026/27 passa em exclusivo na beIN SPORTS (inglês e espanhol, TV e streaming via beIN SPORTS CONNECT).</p>
+    <div id="matchBox"></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Benfica em detalhe</h2><em id="focoHead"></em></div>
+    <div id="focoBox"></div>
+    <p class="note">Onzes e marcadores vêm de relatos abertos; entram automaticamente quando publicados. Minutos jogados e notas individuais exigem fontes fechadas (API) — fora do alcance da leitura automática.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>De onde vêm</h2><em>final 2025/26 · pontos</em></div>
+    <div class="prev" id="prevBox"></div>
+  </section>
+
+  <footer>
+    MÉTODO — Índice de força: escala tipo Elo. Cada clube parte de 1500 + (pontos de 25/26 − 46) × 7,5; os promovidos entram a 1385, o nível de quem lutou pela manutenção. Durante a época mistura-se essa base com o rendimento observado (pontos e diferença de golos por jogo), com peso 10/(10+J), ou seja, ao fim de dez jornadas a época já pesa metade.<br>
+    Projecção: 4000 simulações. Em cada jogo por disputar, as probabilidades de vitória, empate e derrota saem da diferença de índice para a média da liga; somam-se aos pontos já feitos e ordena-se a tabela.<br>
+    Eficiência: golos marcados menos golos esperados (xG). Só aparece quando a leitura ao vivo devolve xG — nem todas as fontes publicam este dado para a Liga Portugal.<br>
+    TV: canais portugueses por jogo (Sport TV; jogos em casa do Benfica na BTV); EUA: beIN SPORTS com exclusivo total da liga em 2026/27 — a GolTV/Fubo deixou de transmitir.<br>\n    xG histórico: espelho FBref (arquivo worldfootballR) — cobre apenas 90 jogos de 2022, pelo que o histórico assenta em golos; o xG ganha peso com as fichas desta época.<br>
+    Estatísticas de jogo: posse, remates, cantos e cartões por encontro, obtidos na leitura ao vivo. No ajuste do modelo, os jogos com estatística usam um alvo misto 50% golos + 50% xG (ou aproximação por remates quando não há xG); posse e cartões são contexto, não entram na previsão — a posse confunde estilo com mérito e os cartões não têm valor preditivo estável.<br>\n    Odds: snapshot de casas europeias via agregadores, convertidas em probabilidade com a margem normalizada; referência analítica, não recomendação de aposta.<br>\n    Modelo Dixon-Coles: ajustado no browser sobre o histórico do openfootball (github.com/openfootball), decaimento temporal de meia-vida ~9 meses, correcção de resultados baixos, validado com RPS 0,188 em 164 jogos de teste de 2025/26.<br>
+    Base: classificação final de 2025/26 (FC Porto campeão, 88 pts) e calendário oficial da 1.ª jornada de 2026/27. Dados ao vivo obtidos por pesquisa web em cada actualização.
+  </footer>
+</div>
+
+<script>
+/* ---------------- base de arranque ---------------- */
+const CLUBES = [
+  ["FC Porto","POR",1,88],["Sporting CP","SCP",2,82],["Benfica","SLB",3,80],
+  ["SC Braga","SCB",4,59],["Famalicão","FAM",5,56],["Gil Vicente","GIL",6,50],
+  ["Moreirense","MOR",7,43],["Arouca","ARO",8,42],["Vitória SC","VSC",9,42],
+  ["Estoril Praia","EST",10,39],["Alverca","ALV",11,39],["Rio Ave","RIO",12,36],
+  ["Santa Clara","STC",13,36],["Nacional","NAC",14,34],["Estrela da Amadora","ESA",15,30],
+  ["Casa Pia","CSP",16,30],["Marítimo","MAR",0,0],["Académico de Viseu","ACV",0,0]
+];
+const SIGLAS={}, BASE={};
+CLUBES.forEach(c=>{ SIGLAS[c[0]]=c[1]; BASE[c[0]] = c[2]===0 ? 1385 : 1500 + (c[3]-46)*7.5; });
+
+function sigla(n){
+  if(SIGLAS[n]) return SIGLAS[n];
+  const k = Object.keys(SIGLAS).find(x=>x.toLowerCase().includes(String(n).toLowerCase().split(" ")[0]));
+  return k?SIGLAS[k]:String(n).replace(/[^A-Za-zÀ-ú]/g,"").slice(0,3).toUpperCase();
+}
+function basePara(n){
+  if(BASE[n]!==undefined) return BASE[n];
+  const k = Object.keys(BASE).find(x=>x.toLowerCase().includes(String(n).toLowerCase().split(" ")[0]));
+  return k?BASE[k]:1450;
+}
+
+const SEED = {
+  jornada:1,
+  tabela: CLUBES.map(c=>({nome:c[0],sigla:c[1],j:0,v:0,e:0,d:0,gm:0,gs:0,pts:0,forma:"",xg:0,xga:0})),
+  jogos:[
+    ["Sex 7 Ago, 20:15","Estoril Praia","Famalicão",""],
+    ["Sáb 8 Ago, 20:30","Estrela da Amadora","Sporting CP",""],
+    ["Dom 9 Ago, 18:00","FC Porto","Alverca",""],
+    ["Dom 9 Ago, 20:30","Benfica","Académico de Viseu",""],
+    ["Dom 9 Ago","Moreirense","SC Braga",""],
+    ["Dom 9 Ago","Santa Clara","Nacional",""],
+    ["1.ª jornada","Marítimo","Casa Pia",""]
+  ]
+};
+let estado = SEED, vista = "forca";
+
+/* ---------------- motor estatístico ---------------- */
+function ordenar(t){
+  return [...t].sort((a,b)=> b.pts-a.pts || (b.gm-b.gs)-(a.gm-a.gs) || b.gm-a.gm || a.nome.localeCompare(b.nome));
+}
+function indice(x){
+  const b = basePara(x.nome);
+  if(!x.j) return b;
+  const rend = 1500 + (x.pts/x.j - 1.4)*180 + ((x.gm-x.gs)/x.j)*90;
+  const w = 10/(10+x.j);
+  return b*w + rend*(1-w);
+}
+function probs(r, media){
+  const E = 1/(1+Math.pow(10,(media-r)/400));
+  const pE = Math.max(0.10, 0.30*(1-Math.abs(2*E-1)));
+  let pV = E - pE/2, pD = 1-pE-pV;
+  pV = Math.max(0.02,pV); pD = Math.max(0.02,pD);
+  const s = pV+pE+pD;
+  return {v:pV/s, e:pE/s, d:pD/s};
+}
+function analise(){
+  const t = ordenar(estado.tabela).map((x,i)=>({...x, pos:i+1, idx:indice(x)}));
+  const media = t.reduce((s,x)=>s+x.idx,0)/t.length;
+  t.forEach(x=>{
+    const p = probs(x.idx, media);
+    x.ppj = 3*p.v + p.e;
+    x.prev = x.pts + x.ppj*Math.max(0, 34-x.j);
+    x.p = p;
+  });
+  return {t, media};
+}
+function simular(t){
+  const N = 4000, res = {};
+  t.forEach(x=>res[x.nome]={titulo:0,europa:0,descida:0,pts:0});
+  const rest = t.map(x=>Math.max(0,34-x.j));
+  for(let s=0;s<N;s++){
+    const tot = t.map((x,i)=>{
+      let p = x.pts;
+      for(let g=0;g<rest[i];g++){
+        const u = Math.random();
+        p += u < x.p.v ? 3 : (u < x.p.v + x.p.e ? 1 : 0);
+      }
+      return {n:x.nome, p:p + Math.random()*0.001};
+    }).sort((a,b)=>b.p-a.p);
+    tot.forEach((o,i)=>{
+      res[o.n].pts += o.p;
+      if(i===0) res[o.n].titulo++;
+      if(i<4) res[o.n].europa++;
+      if(i>=16) res[o.n].descida++;
+    });
+  }
+  Object.keys(res).forEach(k=>{
+    res[k].titulo/=N; res[k].europa/=N; res[k].descida/=N; res[k].pts/=N;
+  });
+  return res;
+}
+
+/* ---------------- render ---------------- */
+function pintarTabela(){
+  const t = ordenar(estado.tabela);
+  const jogados = t.reduce((s,x)=>s+x.j,0) > 0;
+  document.getElementById("tabHead").textContent = jogados ? ("após "+estado.jornada+".ª jornada") : "antes do pontapé de saída";
+  let h = '<table><thead><tr><th class="l">#</th><th class="l">Clube</th><th>J</th><th>V</th><th>E</th><th>D</th><th class="hide-s">GM</th><th class="hide-s">GS</th><th>DG</th><th>Pts</th></tr></thead><tbody>';
+  t.forEach((x,i)=>{
+    const p=i+1, cls = p<=4?"eur":(p===16?"po":(p>=17?"des":"")), dg=x.gm-x.gs;
+    h += '<tr class="'+cls+'"><td class="pos">'+p+'</td><td class="club">'+x.nome+'</td><td>'+x.j+'</td><td>'+x.v+'</td><td>'+x.e+'</td><td>'+x.d+'</td><td class="hide-s">'+x.gm+'</td><td class="hide-s">'+x.gs+'</td><td>'+(dg>0?"+":"")+dg+'</td><td class="pts">'+x.pts+'</td></tr>';
+  });
+  document.getElementById("tableBox").innerHTML = h+'</tbody></table>';
+}
+function pintarCorrida(){
+  const t = ordenar(estado.tabela), lane = document.getElementById("lane");
+  const max = Math.max(12, ...t.map(x=>x.pts)), escala = Math.ceil((max+2)/6)*6;
+  lane.innerHTML = '<div class="startline"></div>';
+  const eixo = document.getElementById("axis"); eixo.innerHTML="";
+  for(let k=0;k<=4;k++){ const s=document.createElement("span"); s.textContent=Math.round(escala*k/4)+" pts"; eixo.appendChild(s); }
+  const grupos={};
+  t.forEach((x,i)=>{ (grupos[x.pts]=grupos[x.pts]||[]).push({...x,pos:i+1}); });
+  const alturaLinha=22, porColuna=6; let maxPilha=1;
+  Object.values(grupos).forEach(g=>maxPilha=Math.max(maxPilha,Math.min(g.length,porColuna)));
+  lane.style.setProperty("--laneH", Math.max(120, maxPilha*alturaLinha+16)+"px");
+  Object.keys(grupos).forEach(pts=>{
+    grupos[pts].forEach((x,k)=>{
+      const el=document.createElement("div");
+      el.className="runner"+(x.pos<=4?" eur":(x.pos>=17?" des":""));
+      el.style.left="calc("+(4+(Number(pts)/escala)*88)+"% + "+(Math.floor(k/porColuna)*34)+"px)";
+      el.style.top=(14+(k%porColuna)*alturaLinha)+"px";
+      el.textContent=x.sigla||sigla(x.nome);
+      el.title=x.nome+" — "+pts+" pts";
+      lane.appendChild(el);
+    });
+  });
+  const total=t.reduce((s,x)=>s+x.j,0);
+  document.getElementById("raceNote").textContent = total===0
+    ? "Todos na linha de partida. A corrida abre a 7 de Agosto, com Estoril–Famalicão."
+    : "Distância entre o 1.º e o 18.º: "+(t[0].pts-t[t.length-1].pts)+" pontos.";
+  document.getElementById("raceHead").textContent = total===0 ? "linha de partida" : "pontos acumulados";
+}
+function barra(nome, valor, texto, largura, cor){
+  return '<div class="rowstat"><span class="sg">'+sigla(nome)+'</span>'+
+    '<div class="barwrap"><div class="bar '+(cor||"")+'" style="width:'+largura+'%"></div>'+
+    '<span class="lbl'+(largura>55?" inv":"")+'">'+nome+'</span></div>'+
+    '<span class="val">'+texto+'</span></div>';
+}
+function pintarAnalise(){
+  const {t} = analise();
+  const box = document.getElementById("anBox");
+  const jogados = t.reduce((s,x)=>s+x.j,0) > 0;
+  document.getElementById("anHead").textContent = jogados ? ("base: "+estado.jornada+" jornadas") : "base: época 2025/26";
+
+  if(vista==="forca"){
+    const ord=[...t].sort((a,b)=>b.idx-a.idx);
+    const lo=Math.min(...ord.map(x=>x.idx)), hi=Math.max(...ord.map(x=>x.idx));
+    box.innerHTML = '<div class="miniH">Índice de força · escala Elo</div>' +
+      ord.map(x=>barra(x.nome,x.idx,Math.round(x.idx),8+92*(x.idx-lo)/((hi-lo)||1),
+        x.pos<=4?"eur":(x.pos>=17?"des":""))).join("") +
+      '<p class="note">'+(jogados
+        ? "O índice já mistura a base de 25/26 com o que se viu esta época. Quem estiver muito acima da posição na tabela está a ser mal pago pelos resultados."
+        : "Sem jogos ainda, o índice é só memória da época passada. Assim que a bola rolar, começa a corrigir-se sozinho.")+'</p>';
+  }
+
+  if(vista==="ritmo"){
+    const pj = x=>x.j?x.pts/x.j:0, am = x=>x.j?x.gm/x.j:0, df = x=>x.j?x.gs/x.j:0;
+    if(!jogados){
+      box.innerHTML = '<p class="empty-note">Ritmo mede-se por jogo, e ainda não há jogos. Volta cá no domingo à noite.</p>';
+      return;
+    }
+    const o1=[...t].sort((a,b)=>pj(b)-pj(a)), mx1=Math.max(...o1.map(pj))||1;
+    const o2=[...t].sort((a,b)=>am(b)-am(a)), mx2=Math.max(...o2.map(am))||1;
+    const o3=[...t].sort((a,b)=>df(a)-df(b)), mx3=Math.max(...o3.map(df))||1;
+    box.innerHTML =
+      '<div class="miniH">Pontos por jogo</div>'+o1.map(x=>barra(x.nome,0,pj(x).toFixed(2),8+92*pj(x)/mx1,x.pos<=4?"eur":"")).join("")+
+      '<div class="miniH">Golos marcados por jogo</div>'+o2.map(x=>barra(x.nome,0,am(x).toFixed(2),8+92*am(x)/mx2,"ocre")).join("")+
+      '<div class="miniH">Golos sofridos por jogo · menos é melhor</div>'+o3.map(x=>barra(x.nome,0,df(x).toFixed(2),8+92*df(x)/mx3,"des")).join("");
+  }
+
+  if(vista==="forma"){
+    const temForma = t.some(x=>x.forma && x.forma.length);
+    if(!temForma){
+      box.innerHTML = '<p class="empty-note">Ainda não há cinco jogos para mostrar. Esta vista enche-se a partir da 1.ª jornada.</p>';
+      return;
+    }
+    const pontosForma = x=>[...(x.forma||"")].slice(-5).reduce((s,c)=>s+(c==="V"?3:c==="E"?1:0),0);
+    const ord=[...t].sort((a,b)=>pontosForma(b)-pontosForma(a));
+    box.innerHTML = '<div class="miniH">Últimos cinco jogos · mais recente à direita</div>' + ord.map(x=>{
+      const f=[...(x.forma||"")].slice(-5);
+      const chips = Array.from({length:5},(_,i)=>{
+        const c=f[i]; return '<span class="chip '+(c||"n")+'">'+(c||"·")+'</span>';
+      }).join("");
+      return '<div class="formrow"><span>'+x.nome+'</span><span class="chips">'+chips+'</span>'+
+        '<span class="val">'+pontosForma(x)+'/15</span></div>';
+    }).join("") + '<p class="note">Pontos conquistados nas últimas cinco jornadas, contra os 15 possíveis.</p>';
+  }
+
+  if(vista==="efic"){
+    const temXG = t.some(x=>x.xg>0);
+    if(!temXG){
+      box.innerHTML = '<p class="empty-note">Sem xG nesta leitura. Nem todas as fontes publicam golos esperados para a Liga Portugal; quando aparecerem, esta vista mostra quem marca acima e abaixo do que cria.</p>';
+      return;
+    }
+    const ord=[...t].sort((a,b)=>(b.gm-b.xg)-(a.gm-a.xg));
+    const mx=Math.max(...ord.map(x=>Math.abs(x.gm-x.xg)))||1;
+    box.innerHTML='<div class="miniH">Ataque · golos menos xG</div>'+ord.map(x=>{
+      const d=x.gm-x.xg;
+      return barra(x.nome,0,(d>0?"+":"")+d.toFixed(1),8+92*Math.abs(d)/mx,d>=0?"eur":"des");
+    }).join("")+
+    '<div class="miniH">Defesa · golos sofridos menos xG concedido</div>'+
+    [...t].sort((a,b)=>(a.gs-a.xga)-(b.gs-b.xga)).map(x=>{
+      const d=x.gs-x.xga;
+      return barra(x.nome,0,(d>0?"+":"")+d.toFixed(1),8+92*Math.abs(d)/(mx||1),d<=0?"eur":"des");
+    }).join("")+
+    '<p class="note">No ataque, valores positivos são finalização acima do esperado. Na defesa, valores negativos são o guarda-redes a salvar o que não devia ser salvo. Nenhum dos dois costuma durar uma época inteira.</p>';
+  }
+
+  if(vista==="proj"){
+    const sim = simular(t);
+    const ord=[...t].sort((a,b)=>sim[b.nome].pts-sim[a.nome].pts);
+    const pc = v => v>=0.995?"99%":(v<0.005?"—":Math.round(v*100)+"%");
+    box.innerHTML = '<div class="miniH">Final projectado · 4000 simulações</div>'+
+      '<div class="probgrid"><span class="h" style="text-align:left">Clube</span><span class="h">Pts</span><span class="h">Top 4</span><span class="h">Descida</span></div>'+
+      ord.map(x=>{
+        const s=sim[x.nome];
+        return '<div class="probgrid"><span class="nm">'+x.nome+'</span>'+
+          '<span class="cellp"><b>'+Math.round(s.pts)+'</b></span>'+
+          '<span class="cellp" style="--o:'+(s.europa*0.55).toFixed(2)+'"><b>'+pc(s.europa)+'</b></span>'+
+          '<span class="cellp" style="--o:'+(s.descida*0.55).toFixed(2)+'"><b>'+pc(s.descida)+'</b></span></div>';
+      }).join("")+
+      '<p class="note">Título: '+ord.slice(0,3).map(x=>sigla(x.nome)+" "+pc(sim[x.nome].titulo)).join(" · ")+
+      '. '+(jogados?"Cada jornada nova puxa a projecção para o que está a acontecer no campo.":"Antes da primeira bola, isto é apenas o que 2025/26 diz sobre 2026/27.")+'</p>';
+  }
+}
+function pintarJogos(){
+  const box=document.getElementById("matchBox");
+  document.getElementById("rndHead").textContent = estado.jornada+".ª jornada";
+  if(!estado.jogos||!estado.jogos.length){ box.innerHTML='<p class="empty-note">Sem jogos listados nesta leitura.</p>'; return; }
+  box.innerHTML = estado.jogos.map(j=>{
+    const [quando,casa,fora,res]=j;
+    const m = res&&String(res).trim() ? '<span class="score">'+res+'</span>' : '<span class="score pend">vs</span>';
+    const canais = j[4] ? '<div class="mday" style="color:var(--ocre)">📺 '+j[4]+'</div>' : '';
+    return '<div class="match"><div class="home"><div class="team">'+casa+'</div></div>'+m+
+      '<div class="away"><div class="team">'+fora+'</div><div class="mday">'+quando+'</div>'+canais+'</div></div>';
+  }).join("");
+}
+function pintarAnterior(){
+  document.getElementById("prevBox").innerHTML = CLUBES.map(c=>{
+    const subiu=c[2]===0;
+    return '<div><span'+(subiu?' class="up"':'')+'>'+(subiu?'↑ ':c[2]+'. ')+c[0]+'</span><span>'+(subiu?'Liga 2':c[3]+' pts')+'</span></div>';
+  }).join("");
+}
+function pintarTudo(){ pintarCorrida(); pintarTabela(); pintarAnalise(); pintarJogos(); }
+function estadoUI(txt,on){
+  document.getElementById("state").textContent=txt;
+  document.getElementById("pip").className="pip"+(on?" on":"");
+}
+
+/* ---------------- leitura ao vivo ---------------- */
+const PROMPT = `Pesquisa TODOS os jogos da Liga Portugal Betclic (Primeira Liga) 2026/27 disputados nos últimos 8 dias, de qualquer jornada, com resultado FINAL (ignora jogos ainda a decorrer), e também os jogos agendados da jornada em curso com data/hora.
+Responde APENAS com JSON válido, sem markdown e sem texto à volta:
+{"jornada":<n>,"jogos":[["Dia","Casa","Fora","2-1"], ...],"estatisticas":[["Casa","Fora",posseC,posseF,rematesC,rematesF,rematesBalizaC,rematesBalizaF,cantosC,cantosF,amarelosC,amarelosF,vermelhosC,vermelhosF,xgC,xgF], ...],"odds":[["Casa","Fora",oddCasa,oddEmpate,oddFora], ...]}
+Regras:
+- Em "jogos", inclui TODOS os disputados nos últimos 8 dias com resultado final, mais os agendados da jornada em curso com resultado "". Um jogo a decorrer neste momento fica com resultado "".
+- "estatisticas" só para jogos já disputados. Para cada um, pesquisa literalmente "zerozero ficha de jogo <equipa casa> <equipa fora>" e usa os números da ficha (Remates, Remates à baliza, Cantos, Posse de Bola, Expected Goals, cartões); usa -1 no que não encontrares. Se não encontrares nada, omite o campo.
+- "odds" decimais 1X2 dos jogos por disputar; omite se não encontrares.
+- Acrescenta "foco":[{"jogo":["Adversário","casa|fora","2-1","Liga|Liga Europa|Taça"],"jornada":2,"onze":["11 titulares do Benfica"],"suplentes_usados":["quem entrou"],"marcadores":[["Nome","min'"]]}, ...] com o detalhe dos jogos do BENFICA dos últimos 8 dias em qualquer competição, a partir de relatos e fichas de jogo, se encontrares.
+- Acrescenta "outros_jogos":[["Equipa","2026-08-20","Liga Europa","fora"], ...] com jogos das equipas portuguesas NOUTRAS competições (Champions, Liga Europa, Conferência, Taça, Supertaça) nos últimos 8 dias e nos próximos 7, com data ISO e casa/fora, se os encontrares.
+- Acrescenta "horarios":[["Casa","Fora","Dom 16 Ago","20h30","canal TV português (Sport TV 1/2/3 ou BTV)"], ...] com dia, hora de Lisboa e canal dos jogos por disputar, se os encontrares.
+- Nomes curtos: FC Porto, Sporting CP, Benfica, SC Braga, Famalicão, Gil Vicente, Moreirense, Arouca, Vitória SC, Estoril Praia, Alverca, Rio Ave, Santa Clara, Nacional, Estrela da Amadora, Casa Pia, Marítimo, Académico de Viseu.
+- Números, nunca texto, nos campos numéricos.`;
+
+let A_CORRER = false;
+async function actualizar(){
+  if (A_CORRER) return;
+  A_CORRER = true;
+  const btn=document.getElementById("btn"); btn.disabled=true;
+  estadoUI("a ler a web",false);
+  try{
+    const r = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6", max_tokens:1000,
+        messages:[{role:"user",content:PROMPT}],
+        tools:[{type:"web_search_20250305",name:"web_search"}]
+      })
+    });
+    const data=await r.json();
+    const texto=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+    const bruto=texto.slice(texto.indexOf("{"), texto.lastIndexOf("}")+1);
+    const j=JSON.parse(bruto);
+
+    let aproveitado = false;
+    if (Array.isArray(j.jogos) && j.jogos.length && window.__aplicarResultadosDC)
+      aproveitado = window.__aplicarResultadosDC(j.jogos) || aproveitado;
+    if (Array.isArray(j.estatisticas) && j.estatisticas.length && window.__aplicarEstatsDC)
+      aproveitado = window.__aplicarEstatsDC(j.estatisticas) || aproveitado;
+    if (Array.isArray(j.horarios) && j.horarios.length && window.__aplicarHorariosDC)
+      aproveitado = window.__aplicarHorariosDC(j.horarios) || aproveitado;
+    if (Array.isArray(j.outros_jogos) && j.outros_jogos.length && window.__aplicarContextoDC)
+      aproveitado = window.__aplicarContextoDC(j.outros_jogos) || aproveitado;
+    if (Array.isArray(j.foco) && j.foco.length && window.__aplicarFocoDC)
+      aproveitado = window.__aplicarFocoDC(j.foco) || aproveitado;
+    if (Array.isArray(j.odds) && j.odds.length && window.ODDS_ATUAIS){
+      const validas = j.odds.filter(o=>o.length>=5 && +o[2]>1 && +o[3]>1 && +o[4]>1);
+      if (validas.length){
+        window.ODDS_ATUAIS.jogos = validas;
+        window.ODDS_ATUAIS.quando = "leitura de hoje";
+        if (window.__refazerDC) try{ window.__refazerDC(); }catch(e){}
+        aproveitado = true;
+      }
+    }
+    // Sem novidades também é uma leitura bem sucedida: está tudo em dia.
+    estadoUI(aproveitado ? "actualizado" : "em dia", true);
+    document.getElementById("stamp").textContent =
+      "lido às "+new Date().toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+    const e=document.getElementById("erro"); if(e) e.remove();
+  }catch(err){
+    estadoUI("leitura falhou",false);
+    setTimeout(actualizar, 60*1000);   // retentativa rápida além do ciclo normal
+    if(!document.getElementById("erro")){
+      const d=document.createElement("div"); d.className="err"; d.id="erro";
+      d.textContent="A leitura ao vivo falhou desta vez — tento outra vez daqui a 5 minutos. Os dados mostrados são os últimos confirmados.";
+      document.querySelector(".masthead").after(d);
+    }
+  }finally{ btn.disabled=false; A_CORRER=false; }
+}
+
+document.getElementById("btn").addEventListener("click", actualizar);
+document.getElementById("tabs").addEventListener("click", ev=>{
+  const b=ev.target.closest(".tab"); if(!b) return;
+  vista=b.dataset.v;
+  [...document.querySelectorAll(".tab")].forEach(x=>x.setAttribute("aria-selected", x===b?"true":"false"));
+  pintarAnalise();
+});
+pintarAnterior(); pintarTudo(); estadoUI("arranque oficial",false); actualizar();
+setInterval(actualizar, 5*60*1000);
+document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) actualizar(); });
+window.addEventListener("resize", pintarCorrida);
+
+/* ================= MODELO DIXON-COLES (dados openfootball) ================= */
+const OF_EMBED = {"equipas":["AVS","Académico de Viseu","Alverca","Arouca","Aves","Belenenses SAD","Benfica","Boavista","Casa Pia","Chaves","Estoril Praia","Estrela da Amadora","FC Porto","Famalicão","Farense","Gil Vicente","Marítimo","Moreirense","Nacional","Paços de Ferreira","Portimonense","Rio Ave","SC Braga","Santa Clara","Sporting CP","Tondela","Vitória FC","Vitória SC","Vizela"],"jogos":[[0,1,220,20,5,0,0,-1,-1],[0,1,221,23,13,0,2,-1,-1],[0,1,221,15,12,2,1,-1,-1],[0,1,221,6,19,5,0,-1,-1],[0,1,222,7,4,2,1,-1,-1],[0,1,222,16,24,1,1,-1,-1],[0,1,222,22,17,3,1,-1,-1],[0,1,223,26,25,0,0,-1,-1],[0,1,250,21,27,1,1,-1,-1],[0,2,227,13,21,1,0,-1,-1],[0,2,228,17,15,3,0,-1,-1],[0,2,228,5,6,0,2,-1,-1],[0,2,228,12,26,4,0,-1,-1],[0,2,229,19,23,0,1,-1,-1],[0,2,229,4,16,3,1,-1,-1],[0,2,229,27,7,1,1,-1,-1],[0,2,229,24,22,2,1,-1,-1],[0,2,230,25,20,1,2,-1,-1],[0,3,234,26,17,0,0,-1,-1],[0,3,234,21,4,5,1,-1,-1],[0,3,235,6,12,0,2,-1,-1],[0,3,235,7,19,1,1,-1,-1],[0,3,236,16,25,2,3,-1,-1],[0,3,236,23,5,0,0,-1,-1],[0,3,236,20,24,1,3,-1,-1],[0,3,236,15,22,1,1,-1,-1],[0,3,236,27,13,1,1,-1,-1],[0,4,241,17,20,1,0,-1,-1],[0,4,241,5,7,0,1,-1,-1],[0,4,242,19,16,0,1,-1,-1],[0,4,242,4,13,2,3,-1,-1],[0,4,242,24,21,2,3,-1,-1],[0,4,242,15,26,0,0,-1,-1],[0,4,243,25,23,0,0,-1,-1],[0,4,243,12,27,3,0,-1,-1],[0,4,243,22,6,0,4,-1,-1],[0,5,255,26,22,1,0,-1,-1],[0,5,256,13,19,4,2,-1,-1],[0,5,256,6,15,2,0,-1,-1],[0,5,256,27,4,5,1,-1,-1],[0,5,257,23,17,2,0,-1,-1],[0,5,257,21,25,2,4,-1,-1],[0,5,257,16,5,1,3,-1,-1],[0,5,257,20,12,2,3,-1,-1],[0,5,257,7,24,1,1,-1,-1],[0,6,262,19,4,2,1,-1,-1],[0,6,263,5,21,0,2,-1,-1],[0,6,263,17,6,1,2,-1,-1],[0,6,264,15,7,0,0,-1,-1],[0,6,264,25,27,1,3,-1,-1],[0,6,264,26,20,0,0,-1,-1],[0,6,264,12,23,2,0,-1,-1],[0,6,265,22,16,2,2,-1,-1],[0,6,265,24,13,1,2,-1,-1],[0,7,269,7,25,0,0,-1,-1],[0,7,270,16,17,2,1,-1,-1],[0,7,270,6,26,1,0,-1,-1],[0,7,270,13,5,3,1,-1,-1],[0,7,271,23,15,1,0,-1,-1],[0,7,271,27,19,1,0,-1,-1],[0,7,271,20,22,0,1,-1,-1],[0,7,271,21,12,0,1,-1,-1],[0,7,272,4,24,0,1,-1,-1],[0,8,297,19,21,0,0,-1,-1],[0,8,298,15,20,1,1,-1,-1],[0,8,298,5,4,3,2,-1,-1],[0,8,298,26,16,0,0,-1,-1],[0,8,298,17,7,1,1,-1,-1],[0,8,299,25,6,0,1,-1,-1],[0,8,299,12,13,3,0,-1,-1],[0,8,299,24,27,3,1,-1,-1],[0,8,300,22,23,2,0,-1,-1],[0,9,277,4,25,0,1,-1,-1],[0,9,302,21,17,1,1,-1,-1],[0,9,302,16,12,1,1,-1,-1],[0,9,302,27,5,5,0,-1,-1],[0,9,302,6,20,4,0,-1,-1],[0,9,302,13,15,2,1,-1,-1],[0,9,303,19,24,1,2,-1,-1],[0,9,303,7,22,2,0,-1,-1],[0,9,303,23,26,1,1,-1,-1],[0,10,305,6,21,2,0,-1,-1],[0,10,305,17,27,1,1,-1,-1],[0,10,306,15,16,2,0,-1,-1],[0,10,306,25,24,1,0,-1,-1],[0,10,306,12,4,1,0,-1,-1],[0,10,306,22,13,2,2,-1,-1],[0,10,307,5,19,1,0,-1,-1],[0,10,307,26,7,1,0,-1,-1],[0,10,307,20,23,1,1,-1,-1],[0,11,311,4,15,1,2,-1,-1],[0,11,312,21,26,1,0,-1,-1],[0,11,312,23,6,1,2,-1,-1],[0,11,312,13,17,3,3,-1,-1],[0,11,313,19,25,1,0,-1,-1],[0,11,313,16,20,1,1,-1,-1],[0,11,313,24,5,2,0,-1,-1],[0,11,313,27,22,0,2,-1,-1],[0,11,313,7,12,0,1,-1,-1],[0,12,332,23,7,1,2,-1,-1],[0,12,333,17,4,3,2,-1,-1],[0,12,333,6,16,4,0,-1,-1],[0,12,333,20,13,2,1,-1,-1],[0,12,334,25,5,0,1,-1,-1],[0,12,334,26,27,1,1,-1,-1],[0,12,334,15,24,3,1,-1,-1],[0,12,335,22,21,2,0,-1,-1],[0,12,335,12,19,2,0,-1,-1],[0,13,339,7,6,1,4,-1,-1],[0,13,340,16,23,2,2,-1,-1],[0,13,340,13,25,2,3,-1,-1],[0,13,340,4,22,1,0,-1,-1],[0,13,341,19,26,2,3,-1,-1],[0,13,341,27,20,2,0,-1,-1],[0,13,341,24,17,1,0,-1,-1],[0,13,341,5,12,1,1,-1,-1],[0,13,342,21,15,1,0,-1,-1],[0,14,346,20,21,1,1,-1,-1],[0,14,347,16,7,1,0,-1,-1],[0,14,347,6,13,4,0,-1,-1],[0,14,347,26,4,1,0,-1,-1],[0,14,348,17,5,2,1,-1,-1],[0,14,348,15,27,2,2,-1,-1],[0,14,348,22,19,0,1,-1,-1],[0,14,349,23,24,0,4,-1,-1],[0,14,349,12,25,3,0,-1,-1],[0,15,368,4,23,0,1,-1,-1],[0,15,368,7,20,1,1,-1,-1],[0,15,368,5,22,1,7,-1,-1],[0,15,368,27,6,0,1,-1,-1],[0,15,369,19,17,1,0,-1,-1],[0,15,369,25,15,1,1,-1,-1],[0,15,369,21,16,0,1,-1,-1],[0,15,369,24,12,1,2,-1,-1],[0,15,369,13,26,3,0,-1,-1],[0,16,374,23,21,0,1,-1,-1],[0,16,374,6,4,2,1,-1,-1],[0,16,374,17,12,2,4,-1,-1],[0,16,375,20,19,0,0,-1,-1],[0,16,375,7,13,0,1,-1,-1],[0,16,375,26,24,1,3,-1,-1],[0,16,376,15,5,2,0,-1,-1],[0,16,376,16,27,0,0,-1,-1],[0,16,376,22,25,2,1,-1,-1],[0,17,381,12,22,1,2,-1,-1],[0,17,381,24,6,0,2,-1,-1],[0,17,382,4,20,3,0,-1,-1],[0,17,382,27,23,1,0,-1,-1],[0,17,382,25,17,1,1,-1,-1],[0,17,382,5,26,0,1,-1,-1],[0,17,383,19,15,0,0,-1,-1],[0,17,383,13,16,1,1,-1,-1],[0,17,383,21,7,2,0,-1,-1],[0,18,390,25,26,0,3,-1,-1],[0,18,390,13,23,0,1,-1,-1],[0,18,390,5,20,2,1,-1,-1],[0,18,390,19,6,0,2,-1,-1],[0,18,390,4,7,0,1,-1,-1],[0,18,391,27,21,1,2,-1,-1],[0,18,391,24,16,1,0,-1,-1],[0,18,392,12,15,2,1,-1,-1],[0,18,393,17,22,1,2,-1,-1],[0,19,395,6,5,3,2,-1,-1],[0,19,395,21,13,2,2,-1,-1],[0,19,396,20,25,0,1,-1,-1],[0,19,396,26,12,0,4,-1,-1],[0,19,397,16,4,1,2,-1,-1],[0,19,397,15,17,1,5,-1,-1],[0,19,397,23,19,2,1,-1,-1],[0,19,397,22,24,1,0,-1,-1],[0,19,397,7,27,2,0,-1,-1],[0,20,402,19,7,0,1,-1,-1],[0,20,403,13,27,0,7,-1,-1],[0,20,403,5,23,0,2,-1,-1],[0,20,403,22,15,2,2,-1,-1],[0,20,403,12,6,3,2,-1,-1],[0,20,404,25,16,0,0,-1,-1],[0,20,404,17,26,1,1,-1,-1],[0,20,404,24,20,2,1,-1,-1],[0,20,404,4,21,0,4,-1,-1],[0,21,409,26,15,1,2,-1,-1],[0,21,410,20,17,1,1,-1,-1],[0,21,410,23,25,1,0,-1,-1],[0,21,410,6,22,0,1,-1,-1],[0,21,410,21,24,1,1,-1,-1],[0,21,411,16,19,3,0,-1,-1],[0,21,411,7,5,1,2,-1,-1],[0,21,411,27,12,1,2,-1,-1],[0,21,411,13,4,1,1,-1,-1],[0,22,416,4,27,0,2,-1,-1],[0,22,417,25,21,1,2,-1,-1],[0,22,417,5,16,1,0,-1,-1],[0,22,418,19,13,2,1,-1,-1],[0,22,418,17,23,2,1,-1,-1],[0,22,418,24,7,2,0,-1,-1],[0,22,418,22,26,3,1,-1,-1],[0,22,418,12,20,1,0,-1,-1],[0,22,419,15,6,0,1,-1,-1],[0,23,423,20,26,0,0,-1,-1],[0,23,424,21,5,0,0,-1,-1],[0,23,424,7,15,0,1,-1,-1],[0,23,425,4,19,1,3,-1,-1],[0,23,425,16,22,1,2,-1,-1],[0,23,425,27,25,2,0,-1,-1],[0,23,426,23,12,0,2,-1,-1],[0,23,426,6,17,1,1,-1,-1],[0,23,427,13,24,3,1,-1,-1],[0,24,430,22,20,3,1,-1,-1],[0,24,431,25,7,1,1,-1,-1],[0,24,431,26,6,1,1,-1,-1],[0,24,431,12,21,1,1,-1,-1],[0,24,432,5,13,0,0,-1,-1],[0,24,432,17,16,2,0,-1,-1],[0,24,432,15,23,1,1,-1,-1],[0,24,432,24,4,2,0,-1,-1],[0,24,432,19,27,1,2,-1,-1],[0,25,519,20,15,1,0,-1,-1],[0,25,519,13,12,2,1,-1,-1],[0,25,520,16,26,1,1,-1,-1],[0,25,520,6,25,0,0,-1,-1],[0,25,520,27,24,2,2,-1,-1],[0,25,521,23,22,3,2,-1,-1],[0,25,521,4,5,0,2,-1,-1],[0,25,522,7,17,0,1,-1,-1],[0,25,523,21,19,2,3,-1,-1],[0,26,525,15,13,1,3,-1,-1],[0,26,526,26,23,2,2,-1,-1],[0,26,526,20,6,2,2,-1,-1],[0,26,526,12,16,1,0,-1,-1],[0,26,527,5,27,1,1,-1,-1],[0,26,527,25,4,2,0,-1,-1],[0,26,528,17,21,0,1,-1,-1],[0,26,528,24,19,1,0,-1,-1],[0,26,529,22,7,0,1,-1,-1],[0,27,531,16,15,2,1,-1,-1],[0,27,532,23,20,1,1,-1,-1],[0,27,532,4,12,0,0,-1,-1],[0,27,533,19,5,2,1,-1,-1],[0,27,533,21,6,1,2,-1,-1],[0,27,534,7,26,3,1,-1,-1],[0,27,534,24,25,2,0,-1,-1],[0,27,535,27,17,1,1,-1,-1],[0,27,535,13,22,0,0,-1,-1],[0,28,537,15,4,3,0,-1,-1],[0,28,538,20,16,3,2,-1,-1],[0,28,539,26,21,1,2,-1,-1],[0,28,539,6,23,3,4,-1,-1],[0,28,539,12,7,4,0,-1,-1],[0,28,540,25,19,1,3,-1,-1],[0,28,540,17,13,1,1,-1,-1],[0,28,541,22,27,3,2,-1,-1],[0,28,542,5,24,1,3,-1,-1],[0,29,544,7,23,1,0,-1,-1],[0,29,545,4,17,0,1,-1,-1],[0,29,545,16,6,2,0,-1,-1],[0,29,545,19,12,0,1,-1,-1],[0,29,546,13,20,0,1,-1,-1],[0,29,546,27,26,2,0,-1,-1],[0,29,546,21,22,4,3,-1,-1],[0,29,547,5,25,1,1,-1,-1],[0,29,547,24,15,2,1,-1,-1],[0,30,549,23,16,0,1,-1,-1],[0,30,550,26,19,2,3,-1,-1],[0,30,550,20,27,0,1,-1,-1],[0,30,550,6,7,3,1,-1,-1],[0,30,550,22,4,4,0,-1,-1],[0,30,551,15,21,1,0,-1,-1],[0,30,551,25,13,0,1,-1,-1],[0,30,551,12,5,5,0,-1,-1],[0,30,552,17,24,0,0,-1,-1],[0,31,554,7,16,0,1,-1,-1],[0,31,554,4,26,1,0,-1,-1],[0,31,555,21,20,2,1,-1,-1],[0,31,555,25,12,1,3,-1,-1],[0,31,555,13,6,1,1,-1,-1],[0,31,556,27,15,1,2,-1,-1],[0,31,556,24,23,1,0,-1,-1],[0,31,556,19,22,1,5,-1,-1],[0,31,557,5,17,0,1,-1,-1],[0,32,559,16,21,0,0,-1,-1],[0,32,559,26,13,1,2,-1,-1],[0,32,560,23,4,3,0,-1,-1],[0,32,560,20,7,2,1,-1,-1],[0,32,560,15,25,3,2,-1,-1],[0,32,560,6,27,2,0,-1,-1],[0,32,561,17,19,1,1,-1,-1],[0,32,561,22,5,1,1,-1,-1],[0,32,561,12,24,2,0,-1,-1],[0,33,564,21,23,2,2,-1,-1],[0,33,564,13,7,2,2,-1,-1],[0,33,565,5,15,1,0,-1,-1],[0,33,565,27,16,1,0,-1,-1],[0,33,566,19,20,2,1,-1,-1],[0,33,566,25,22,1,0,-1,-1],[0,33,566,12,17,6,1,-1,-1],[0,33,567,24,26,0,0,-1,-1],[0,33,567,4,6,0,4,-1,-1],[0,34,570,23,27,2,2,-1,-1],[0,34,570,15,19,3,3,-1,-1],[0,34,571,16,13,3,3,-1,-1],[0,34,571,7,21,0,2,-1,-1],[0,34,571,6,24,2,1,-1,-1],[0,34,571,22,12,2,1,-1,-1],[0,34,572,20,4,2,0,-1,-1],[0,34,572,26,5,2,0,-1,-1],[0,34,572,17,25,1,2,-1,-1],[1,1,626,13,6,1,5,-1,-1],[1,1,626,27,5,0,1,-1,-1],[1,1,627,18,7,3,3,-1,-1],[1,1,627,12,22,3,1,-1,-1],[1,1,628,23,16,2,0,-1,-1],[1,1,628,17,14,2,0,-1,-1],[1,1,628,25,21,1,1,-1,-1],[1,1,629,20,19,1,1,-1,-1],[1,1,666,24,15,3,1,-1,-1],[1,2,633,22,23,0,1,-1,-1],[1,2,634,16,25,2,1,-1,-1],[1,2,634,6,17,2,0,-1,-1],[1,2,634,7,12,0,5,-1,-1],[1,2,635,14,18,0,1,-1,-1],[1,2,635,15,20,1,0,-1,-1],[1,2,635,19,24,0,2,-1,-1],[1,2,635,21,27,0,0,-1,-1],[1,2,636,5,13,1,2,-1,-1],[1,3,640,17,7,1,1,-1,-1],[1,3,640,27,19,1,0,-1,-1],[1,3,641,23,15,0,0,-1,-1],[1,3,641,12,16,2,3,-1,-1],[1,3,641,25,22,0,4,-1,-1],[1,3,642,18,5,0,0,-1,-1],[1,3,642,6,14,3,2,-1,-1],[1,3,642,13,21,1,1,-1,-1],[1,3,642,20,24,0,2,-1,-1],[1,4,655,15,25,1,1,-1,-1],[1,4,655,16,20,1,2,-1,-1],[1,4,655,22,18,2,1,-1,-1],[1,4,655,24,12,2,2,-1,-1],[1,4,656,5,17,0,0,-1,-1],[1,4,656,19,23,2,1,-1,-1],[1,4,656,14,13,3,3,-1,-1],[1,4,656,21,6,0,3,-1,-1],[1,4,657,7,27,0,1,-1,-1],[1,5,661,25,20,1,0,-1,-1],[1,5,662,18,19,1,1,-1,-1],[1,5,662,23,24,1,2,-1,-1],[1,5,662,12,15,1,0,-1,-1],[1,5,663,14,21,0,1,-1,-1],[1,5,663,17,16,2,1,-1,-1],[1,5,663,13,7,2,2,-1,-1],[1,5,663,27,22,0,1,-1,-1],[1,5,664,6,5,2,0,-1,-1],[1,6,668,19,12,3,2,-1,-1],[1,6,669,5,14,1,1,-1,-1],[1,6,669,21,17,2,0,-1,-1],[1,6,669,16,18,0,0,-1,-1],[1,6,670,20,23,1,2,-1,-1],[1,6,670,15,27,1,2,-1,-1],[1,6,670,24,25,4,0,-1,-1],[1,6,671,22,13,1,0,-1,-1],[1,6,671,7,6,3,0,-1,-1],[1,7,675,5,21,0,0,-1,-1],[1,7,676,25,23,2,0,-1,-1],[1,7,676,13,16,2,1,-1,-1],[1,7,676,27,24,0,4,-1,-1],[1,7,677,14,7,3,1,-1,-1],[1,7,677,18,15,2,1,-1,-1],[1,7,677,12,20,3,1,-1,-1],[1,7,677,6,22,2,3,-1,-1],[1,7,700,17,19,0,1,-1,-1],[1,8,696,19,13,2,0,-1,-1],[1,8,696,25,27,0,2,-1,-1],[1,8,697,23,12,0,1,-1,-1],[1,8,697,24,17,2,1,-1,-1],[1,8,698,15,21,2,0,-1,-1],[1,8,698,20,18,1,0,-1,-1],[1,8,698,7,5,0,0,-1,-1],[1,8,698,22,14,1,0,-1,-1],[1,8,699,16,6,1,2,-1,-1],[1,9,704,17,15,1,1,-1,-1],[1,9,704,27,20,1,0,-1,-1],[1,9,704,13,24,2,2,-1,-1],[1,9,704,12,25,4,3,-1,-1],[1,9,705,18,23,1,3,-1,-1],[1,9,705,21,7,0,0,-1,-1],[1,9,705,6,19,2,1,-1,-1],[1,9,705,5,22,2,1,-1,-1],[1,9,706,14,16,2,1,-1,-1],[1,10,717,20,13,0,0,-1,-1],[1,10,718,16,5,1,0,-1,-1],[1,10,718,25,17,0,0,-1,-1],[1,10,718,24,14,1,0,-1,-1],[1,10,719,19,7,1,1,-1,-1],[1,10,719,15,6,0,2,-1,-1],[1,10,719,12,18,2,0,-1,-1],[1,10,720,23,27,0,4,-1,-1],[1,10,721,22,21,3,0,-1,-1],[1,11,726,13,15,0,1,-1,-1],[1,11,726,18,25,2,0,-1,-1],[1,11,726,14,19,1,1,-1,-1],[1,11,726,5,24,1,2,-1,-1],[1,11,727,21,16,1,3,-1,-1],[1,11,727,7,22,1,4,-1,-1],[1,11,728,6,20,2,1,-1,-1],[1,11,728,17,23,1,0,-1,-1],[1,11,728,27,12,2,3,-1,-1],[1,12,732,24,22,2,0,-1,-1],[1,12,733,25,13,1,0,-1,-1],[1,12,733,16,7,0,0,-1,-1],[1,12,733,19,21,2,0,-1,-1],[1,12,733,12,17,3,0,-1,-1],[1,12,734,23,6,1,1,-1,-1],[1,12,734,15,5,0,0,-1,-1],[1,12,734,20,14,2,0,-1,-1],[1,12,751,27,18,3,1,-1,-1],[1,13,737,22,16,2,1,-1,-1],[1,13,738,18,24,0,2,-1,-1],[1,13,738,6,25,2,0,-1,-1],[1,13,738,21,20,3,0,-1,-1],[1,13,738,13,12,1,4,-1,-1],[1,13,739,17,27,2,2,-1,-1],[1,13,739,7,23,1,1,-1,-1],[1,13,740,14,15,3,1,-1,-1],[1,13,740,5,19,0,2,-1,-1],[1,14,745,24,21,1,1,-1,-1],[1,14,745,12,6,1,1,-1,-1],[1,14,746,19,22,2,0,-1,-1],[1,14,746,25,7,3,1,-1,-1],[1,14,747,18,17,0,1,-1,-1],[1,14,747,23,13,1,2,-1,-1],[1,14,747,15,16,0,1,-1,-1],[1,14,748,20,5,1,0,-1,-1],[1,14,778,27,14,2,2,-1,-1],[1,15,754,16,19,0,3,-1,-1],[1,15,754,17,20,2,2,-1,-1],[1,15,754,13,27,0,1,-1,-1],[1,15,755,5,25,2,0,-1,-1],[1,15,755,21,23,1,2,-1,-1],[1,15,755,6,18,1,1,-1,-1],[1,15,755,14,12,0,1,-1,-1],[1,15,756,22,15,1,0,-1,-1],[1,15,756,7,24,0,2,-1,-1],[1,16,760,18,13,2,1,-1,-1],[1,16,760,25,14,2,0,-1,-1],[1,16,760,20,7,1,2,-1,-1],[1,16,761,27,16,1,0,-1,-1],[1,16,762,23,5,2,0,-1,-1],[1,16,762,12,21,2,0,-1,-1],[1,16,762,17,22,0,4,-1,-1],[1,16,762,24,6,1,0,-1,-1],[1,16,763,15,19,1,2,-1,-1],[1,17,765,14,23,1,1,-1,-1],[1,17,765,5,12,0,0,-1,-1],[1,17,765,22,20,2,1,-1,-1],[1,17,765,13,17,0,2,-1,-1],[1,17,766,21,18,0,0,-1,-1],[1,17,766,6,27,0,0,-1,-1],[1,17,766,16,24,0,2,-1,-1],[1,17,766,7,15,1,2,-1,-1],[1,17,766,19,25,2,1,-1,-1],[1,18,768,22,12,2,2,-1,-1],[1,18,769,14,17,1,2,-1,-1],[1,18,769,6,13,2,0,-1,-1],[1,18,769,16,23,1,2,-1,-1],[1,18,769,5,27,1,1,-1,-1],[1,18,770,19,20,0,0,-1,-1],[1,18,770,21,25,2,1,-1,-1],[1,18,770,7,18,0,1,-1,-1],[1,18,770,15,24,1,2,-1,-1],[1,19,773,13,5,0,0,-1,-1],[1,19,774,18,14,2,3,-1,-1],[1,19,774,27,21,1,3,-1,-1],[1,19,774,12,7,2,2,-1,-1],[1,19,775,20,15,4,1,-1,-1],[1,19,775,23,22,0,1,-1,-1],[1,19,775,17,6,1,1,-1,-1],[1,19,776,24,19,2,0,-1,-1],[1,19,777,25,16,2,1,-1,-1],[1,20,780,7,17,1,0,-1,-1],[1,20,781,5,18,2,1,-1,-1],[1,20,781,15,23,1,0,-1,-1],[1,20,781,24,20,2,0,-1,-1],[1,20,782,21,13,0,1,-1,-1],[1,20,782,19,27,2,1,-1,-1],[1,20,782,22,25,4,2,-1,-1],[1,20,782,14,6,0,0,-1,-1],[1,20,783,16,12,1,2,-1,-1],[1,21,787,27,7,2,1,-1,-1],[1,21,788,13,14,0,0,-1,-1],[1,21,788,23,19,3,0,-1,-1],[1,21,788,12,24,0,0,-1,-1],[1,21,789,20,16,0,0,-1,-1],[1,21,789,25,15,1,0,-1,-1],[1,21,789,18,22,1,2,-1,-1],[1,21,790,6,21,2,0,-1,-1],[1,21,790,17,5,2,2,-1,-1],[1,22,794,19,18,2,1,-1,-1],[1,22,794,24,23,2,1,-1,-1],[1,22,795,20,25,3,0,-1,-1],[1,22,795,15,12,0,2,-1,-1],[1,22,795,7,13,3,0,-1,-1],[1,22,796,16,17,0,2,-1,-1],[1,22,796,21,14,2,0,-1,-1],[1,22,797,5,6,0,3,-1,-1],[1,22,798,22,27,3,0,-1,-1],[1,23,801,18,16,1,2,-1,-1],[1,23,802,14,5,0,1,-1,-1],[1,23,802,6,7,2,0,-1,-1],[1,23,802,23,20,2,0,-1,-1],[1,23,802,25,24,0,1,-1,-1],[1,23,803,17,21,1,1,-1,-1],[1,23,803,27,15,2,4,-1,-1],[1,23,803,12,19,2,0,-1,-1],[1,23,804,13,22,2,2,-1,-1],[1,24,808,15,18,2,0,-1,-1],[1,24,809,23,25,1,1,-1,-1],[1,24,809,19,17,3,0,-1,-1],[1,24,809,20,12,1,2,-1,-1],[1,24,809,24,27,1,0,-1,-1],[1,24,810,21,5,0,0,-1,-1],[1,24,810,7,14,0,1,-1,-1],[1,24,810,16,13,0,4,-1,-1],[1,24,810,22,6,0,2,-1,-1],[1,25,822,18,20,1,5,-1,-1],[1,25,823,21,15,0,2,-1,-1],[1,25,823,12,23,2,1,-1,-1],[1,25,824,5,7,0,2,-1,-1],[1,25,824,27,25,1,2,-1,-1],[1,25,824,13,19,2,0,-1,-1],[1,25,825,14,22,1,2,-1,-1],[1,25,825,6,16,1,0,-1,-1],[1,25,825,17,24,1,1,-1,-1],[1,26,829,20,27,3,0,-1,-1],[1,26,830,16,14,1,0,-1,-1],[1,26,830,7,21,3,3,-1,-1],[1,26,830,25,12,0,2,-1,-1],[1,26,830,19,6,0,5,-1,-1],[1,26,831,15,17,1,2,-1,-1],[1,26,831,23,18,5,1,-1,-1],[1,26,831,22,5,1,1,-1,-1],[1,26,831,24,13,1,1,-1,-1],[1,27,836,7,19,2,0,-1,-1],[1,27,836,14,24,0,1,-1,-1],[1,27,837,17,25,2,3,-1,-1],[1,27,837,27,23,1,0,-1,-1],[1,27,837,6,15,1,2,-1,-1],[1,27,837,5,16,2,0,-1,-1],[1,27,837,21,22,0,0,-1,-1],[1,27,838,13,20,0,1,-1,-1],[1,27,838,18,12,0,1,-1,-1],[1,28,840,19,14,0,2,-1,-1],[1,28,841,23,17,0,0,-1,-1],[1,28,841,16,21,1,0,-1,-1],[1,28,841,22,7,2,1,-1,-1],[1,28,841,24,5,2,2,-1,-1],[1,28,842,25,18,2,1,-1,-1],[1,28,842,15,13,0,3,-1,-1],[1,28,842,20,6,1,5,-1,-1],[1,28,842,12,27,1,0,-1,-1],[1,29,845,7,16,0,1,-1,-1],[1,29,845,21,19,1,1,-1,-1],[1,29,845,22,24,0,1,-1,-1],[1,29,846,5,15,2,1,-1,-1],[1,29,846,6,23,2,1,-1,-1],[1,29,846,13,25,2,2,-1,-1],[1,29,846,18,27,1,0,-1,-1],[1,29,846,17,12,1,1,-1,-1],[1,29,847,14,20,1,1,-1,-1],[1,30,849,16,22,1,0,-1,-1],[1,30,850,19,5,1,0,-1,-1],[1,30,850,27,17,2,0,-1,-1],[1,30,850,25,6,0,2,-1,-1],[1,30,850,12,13,3,2,-1,-1],[1,30,851,15,14,0,0,-1,-1],[1,30,851,23,7,3,3,-1,-1],[1,30,851,20,21,0,0,-1,-1],[1,30,851,24,18,2,0,-1,-1],[1,31,855,16,15,0,1,-1,-1],[1,31,855,22,19,1,1,-1,-1],[1,31,855,21,24,0,2,-1,-1],[1,31,856,17,18,2,2,-1,-1],[1,31,856,5,20,1,0,-1,-1],[1,31,856,6,12,1,1,-1,-1],[1,31,856,14,27,2,2,-1,-1],[1,31,857,13,23,1,0,-1,-1],[1,31,857,7,25,1,1,-1,-1],[1,32,859,19,16,1,1,-1,-1],[1,32,859,15,22,1,1,-1,-1],[1,32,860,20,17,1,2,-1,-1],[1,32,860,12,14,5,1,-1,-1],[1,32,861,23,21,1,0,-1,-1],[1,32,861,25,5,1,3,-1,-1],[1,32,861,18,6,1,3,-1,-1],[1,32,861,24,7,1,0,-1,-1],[1,32,862,27,13,1,2,-1,-1],[1,33,864,19,15,0,2,-1,-1],[1,33,864,22,17,2,1,-1,-1],[1,33,865,7,20,1,0,-1,-1],[1,33,865,14,25,1,0,-1,-1],[1,33,865,6,24,4,3,-1,-1],[1,33,865,21,12,0,3,-1,-1],[1,33,866,13,18,3,0,-1,-1],[1,33,866,5,23,0,2,-1,-1],[1,33,866,16,27,0,0,-1,-1],[1,34,868,25,19,2,3,-1,-1],[1,34,869,12,5,4,0,-1,-1],[1,34,869,23,14,4,0,-1,-1],[1,34,869,17,13,3,0,-1,-1],[1,34,869,15,7,1,2,-1,-1],[1,34,869,18,21,1,2,-1,-1],[1,34,869,20,22,0,0,-1,-1],[1,34,869,27,6,1,3,-1,-1],[1,34,869,24,16,5,1,-1,-1],[2,1,948,24,28,3,0,-1,-1],[2,1,949,3,10,0,2,-1,-1],[2,1,949,17,6,1,2,-1,-1],[2,1,949,16,22,0,2,-1,-1],[2,1,950,25,23,3,0,-1,-1],[2,1,950,27,20,0,1,-1,-1],[2,1,950,12,5,2,0,-1,-1],[2,1,950,19,13,2,0,-1,-1],[2,1,951,15,7,3,0,-1,-1],[2,2,955,10,27,0,0,-1,-1],[2,2,956,28,25,2,1,-1,-1],[2,2,956,6,3,2,0,-1,-1],[2,2,956,22,24,1,2,-1,-1],[2,2,957,20,15,0,1,-1,-1],[2,2,957,13,12,1,2,-1,-1],[2,2,957,23,17,2,2,-1,-1],[2,2,958,7,19,3,0,-1,-1],[2,2,958,5,16,1,2,-1,-1],[2,3,962,3,13,2,1,-1,-1],[2,3,962,17,22,2,3,-1,-1],[2,3,963,15,6,0,2,-1,-1],[2,3,963,24,5,2,0,-1,-1],[2,3,964,25,20,0,3,-1,-1],[2,3,964,16,12,1,1,-1,-1],[2,3,964,27,28,4,0,-1,-1],[2,3,965,19,10,1,3,-1,-1],[2,3,965,7,23,2,0,-1,-1],[2,4,969,5,17,1,1,-1,-1],[2,4,969,10,16,2,1,-1,-1],[2,4,970,28,7,1,1,-1,-1],[2,4,970,12,3,3,0,-1,-1],[2,4,970,13,24,1,1,-1,-1],[2,4,971,6,25,2,1,-1,-1],[2,4,971,22,27,0,0,-1,-1],[2,4,971,23,15,1,0,-1,-1],[2,4,971,20,19,0,1,-1,-1],[2,5,984,19,22,0,0,-1,-1],[2,5,984,23,6,0,5,-1,-1],[2,5,984,24,12,1,1,-1,-1],[2,5,985,17,13,2,2,-1,-1],[2,5,985,7,20,1,1,-1,-1],[2,5,985,15,28,2,2,-1,-1],[2,5,985,27,5,0,0,-1,-1],[2,5,986,16,3,2,2,-1,-1],[2,5,986,25,10,1,2,-1,-1],[2,6,990,20,23,2,1,-1,-1],[2,6,991,13,16,0,0,-1,-1],[2,6,991,5,15,1,1,-1,-1],[2,6,991,3,27,2,2,-1,-1],[2,6,992,28,19,1,1,-1,-1],[2,6,992,12,17,5,0,-1,-1],[2,6,992,10,24,0,1,-1,-1],[2,6,993,6,7,3,1,-1,-1],[2,6,993,22,25,3,1,-1,-1],[2,7,997,24,16,1,0,-1,-1],[2,7,997,15,12,1,2,-1,-1],[2,7,998,17,3,2,1,-1,-1],[2,7,998,27,6,1,3,-1,-1],[2,7,998,25,13,3,2,-1,-1],[2,7,999,23,22,1,1,-1,-1],[2,7,999,20,28,0,0,-1,-1],[2,7,1000,19,5,2,2,-1,-1],[2,7,1000,7,10,1,1,-1,-1],[2,8,1004,16,17,0,0,-1,-1],[2,8,1004,13,27,1,2,-1,-1],[2,8,1005,28,23,1,1,-1,-1],[2,8,1005,12,19,2,1,-1,-1],[2,8,1005,3,24,1,2,-1,-1],[2,8,1006,5,25,0,2,-1,-1],[2,8,1006,6,20,0,1,-1,-1],[2,8,1006,10,15,2,2,-1,-1],[2,8,1006,22,7,2,2,-1,-1],[2,9,1025,27,16,2,1,-1,-1],[2,9,1026,23,13,0,2,-1,-1],[2,9,1026,25,12,1,3,-1,-1],[2,9,1026,24,17,1,0,-1,-1],[2,9,1027,19,3,0,0,-1,-1],[2,9,1027,28,6,0,1,-1,-1],[2,9,1027,20,10,0,2,-1,-1],[2,9,1028,15,22,0,1,-1,-1],[2,9,1028,7,5,0,0,-1,-1],[2,10,1032,3,25,2,0,-1,-1],[2,10,1033,12,7,4,1,-1,-1],[2,10,1033,10,6,1,1,-1,-1],[2,10,1033,24,27,1,0,-1,-1],[2,10,1034,16,15,1,2,-1,-1],[2,10,1034,5,23,2,1,-1,-1],[2,10,1034,13,28,1,1,-1,-1],[2,10,1035,22,20,3,0,-1,-1],[2,10,1035,17,19,1,1,-1,-1],[2,11,1039,15,3,1,1,-1,-1],[2,11,1039,7,13,2,5,-1,-1],[2,11,1040,28,10,1,1,-1,-1],[2,11,1040,20,5,2,0,-1,-1],[2,11,1040,27,17,2,1,-1,-1],[2,11,1041,25,16,4,2,-1,-1],[2,11,1041,23,12,0,3,-1,-1],[2,11,1041,19,24,0,2,-1,-1],[2,11,1041,6,22,6,1,-1,-1],[2,12,1060,17,15,2,2,-1,-1],[2,12,1061,13,20,0,3,-1,-1],[2,12,1061,3,7,2,1,-1,-1],[2,12,1061,5,6,0,7,-1,-1],[2,12,1062,16,19,2,0,-1,-1],[2,12,1062,24,25,2,0,-1,-1],[2,12,1062,12,27,2,1,-1,-1],[2,12,1063,10,23,2,2,-1,-1],[2,12,1064,22,28,4,1,-1,-1],[2,13,1067,20,12,0,3,-1,-1],[2,13,1067,6,24,1,3,-1,-1],[2,13,1068,7,16,1,1,-1,-1],[2,13,1068,19,27,1,2,-1,-1],[2,13,1069,23,3,2,1,-1,-1],[2,13,1069,15,13,4,0,-1,-1],[2,13,1069,22,10,2,0,-1,-1],[2,13,1097,28,5,2,0,-1,-1],[2,13,1098,25,17,2,1,-1,-1],[2,14,1074,19,15,0,1,-1,-1],[2,14,1075,16,23,4,1,-1,-1],[2,14,1075,27,25,5,2,-1,-1],[2,14,1075,24,7,2,0,-1,-1],[2,14,1076,5,10,0,1,-1,-1],[2,14,1076,17,20,0,1,-1,-1],[2,14,1076,13,6,1,4,-1,-1],[2,14,1076,12,22,1,0,-1,-1],[2,14,1077,3,28,1,4,-1,-1],[2,15,1081,23,27,1,0,-1,-1],[2,15,1081,10,13,2,2,-1,-1],[2,15,1082,25,19,0,1,-1,-1],[2,15,1082,20,3,1,1,-1,-1],[2,15,1082,15,24,0,3,-1,-1],[2,15,1083,6,16,7,1,-1,-1],[2,15,1083,7,17,1,0,-1,-1],[2,15,1083,28,12,0,4,-1,-1],[2,15,1083,22,5,1,0,-1,-1],[2,16,1092,25,15,0,3,-1,-1],[2,16,1092,16,28,2,0,-1,-1],[2,16,1092,17,10,1,0,-1,-1],[2,16,1093,27,7,1,1,-1,-1],[2,16,1093,24,20,3,2,-1,-1],[2,16,1094,19,23,2,1,-1,-1],[2,16,1094,3,22,0,6,-1,-1],[2,16,1094,12,6,3,1,-1,-1],[2,16,1108,13,5,1,0,-1,-1],[2,17,1102,23,24,3,2,-1,-1],[2,17,1103,28,17,0,1,-1,-1],[2,17,1103,10,12,2,3,-1,-1],[2,17,1103,7,25,1,1,-1,-1],[2,17,1104,20,16,1,2,-1,-1],[2,17,1104,6,19,2,0,-1,-1],[2,17,1104,22,13,2,2,-1,-1],[2,17,1104,5,3,2,1,-1,-1],[2,17,1105,15,27,3,2,-1,-1],[2,18,1110,7,15,1,1,-1,-1],[2,18,1110,6,17,1,1,-1,-1],[2,18,1110,22,16,0,1,-1,-1],[2,18,1111,23,25,2,2,-1,-1],[2,18,1111,28,24,0,2,-1,-1],[2,18,1111,13,19,0,0,-1,-1],[2,18,1111,5,12,1,4,-1,-1],[2,18,1112,20,27,1,1,-1,-1],[2,18,1122,10,3,1,2,-1,-1],[2,19,1116,3,6,0,2,-1,-1],[2,19,1116,19,7,1,1,-1,-1],[2,19,1117,17,23,0,2,-1,-1],[2,19,1117,25,28,2,3,-1,-1],[2,19,1117,24,22,1,2,-1,-1],[2,19,1118,16,5,1,1,-1,-1],[2,19,1118,27,10,3,1,-1,-1],[2,19,1118,15,20,1,0,-1,-1],[2,19,1118,12,13,3,1,-1,-1],[2,20,1125,20,25,1,2,-1,-1],[2,20,1125,28,27,3,2,-1,-1],[2,20,1125,22,17,2,0,-1,-1],[2,20,1125,12,16,2,1,-1,-1],[2,20,1126,10,19,0,0,-1,-1],[2,20,1126,13,3,0,0,-1,-1],[2,20,1127,23,7,2,1,-1,-1],[2,20,1128,6,15,1,2,-1,-1],[2,20,1128,5,24,1,4,-1,-1],[2,21,1131,16,10,0,0,-1,-1],[2,21,1131,19,20,1,1,-1,-1],[2,21,1131,27,22,2,1,-1,-1],[2,21,1132,7,28,2,2,-1,-1],[2,21,1132,15,23,2,2,-1,-1],[2,21,1132,3,12,0,2,-1,-1],[2,21,1132,24,13,2,0,-1,-1],[2,21,1133,25,6,1,3,-1,-1],[2,21,1133,17,5,4,1,-1,-1],[2,22,1137,12,24,2,2,-1,-1],[2,22,1138,22,19,2,1,-1,-1],[2,22,1138,6,23,2,1,-1,-1],[2,22,1138,20,7,1,1,-1,-1],[2,22,1138,10,25,1,0,-1,-1],[2,22,1139,13,17,5,0,-1,-1],[2,22,1139,5,27,1,0,-1,-1],[2,22,1139,28,15,0,1,-1,-1],[2,22,1140,3,16,0,3,-1,-1],[2,23,1144,7,6,2,2,-1,-1],[2,23,1145,15,5,2,0,-1,-1],[2,23,1145,19,28,2,1,-1,-1],[2,23,1145,27,3,1,3,-1,-1],[2,23,1146,16,13,0,1,-1,-1],[2,23,1146,24,10,3,0,-1,-1],[2,23,1146,17,12,0,1,-1,-1],[2,23,1146,25,22,0,1,-1,-1],[2,23,1147,23,20,1,1,-1,-1],[2,24,1151,5,19,0,2,-1,-1],[2,24,1152,13,25,2,1,-1,-1],[2,24,1152,16,24,1,1,-1,-1],[2,24,1152,3,17,1,1,-1,-1],[2,24,1153,28,20,1,1,-1,-1],[2,24,1153,6,27,3,0,-1,-1],[2,24,1153,10,7,2,3,-1,-1],[2,24,1153,12,15,1,1,-1,-1],[2,24,1154,22,23,0,0,-1,-1],[2,25,1158,15,10,0,0,-1,-1],[2,25,1159,7,22,1,1,-1,-1],[2,25,1159,20,6,1,2,-1,-1],[2,25,1159,24,3,2,0,-1,-1],[2,25,1160,17,16,0,1,-1,-1],[2,25,1160,19,12,2,4,-1,-1],[2,25,1160,23,28,3,1,-1,-1],[2,25,1160,27,13,2,1,-1,-1],[2,25,1161,25,5,1,1,-1,-1],[2,26,1165,6,28,1,1,-1,-1],[2,26,1166,13,23,0,0,-1,-1],[2,26,1166,10,20,2,0,-1,-1],[2,26,1166,3,19,0,1,-1,-1],[2,26,1166,5,7,0,0,-1,-1],[2,26,1167,16,27,0,1,-1,-1],[2,26,1167,12,25,4,0,-1,-1],[2,26,1167,22,15,0,1,-1,-1],[2,26,1168,17,24,0,2,-1,-1],[2,27,1172,28,13,1,1,-1,-1],[2,27,1173,25,3,2,2,-1,-1],[2,27,1173,23,5,0,0,-1,-1],[2,27,1173,27,24,1,3,-1,-1],[2,27,1174,15,16,1,1,-1,-1],[2,27,1174,19,17,2,1,-1,-1],[2,27,1174,6,10,2,1,-1,-1],[2,27,1174,20,22,1,2,-1,-1],[2,27,1174,7,12,0,1,-1,-1],[2,28,1186,22,6,3,2,-1,-1],[2,28,1187,5,20,2,0,-1,-1],[2,28,1187,3,15,2,1,-1,-1],[2,28,1187,10,28,1,2,-1,-1],[2,28,1187,13,7,1,2,-1,-1],[2,28,1188,16,25,1,3,-1,-1],[2,28,1188,17,27,0,1,-1,-1],[2,28,1188,24,19,2,0,-1,-1],[2,28,1189,12,23,3,0,-1,-1],[2,29,1193,15,17,1,2,-1,-1],[2,29,1194,19,16,2,0,-1,-1],[2,29,1194,6,5,3,1,-1,-1],[2,29,1194,7,3,1,0,-1,-1],[2,29,1194,25,24,1,3,-1,-1],[2,29,1195,23,10,2,0,-1,-1],[2,29,1195,20,13,1,0,-1,-1],[2,29,1195,27,12,0,1,-1,-1],[2,29,1195,28,22,0,1,-1,-1],[2,30,1200,3,23,1,1,-1,-1],[2,30,1200,13,15,2,2,-1,-1],[2,30,1200,27,19,4,0,-1,-1],[2,30,1201,17,25,2,0,-1,-1],[2,30,1201,5,28,1,0,-1,-1],[2,30,1201,16,7,4,0,-1,-1],[2,30,1201,12,20,7,0,-1,-1],[2,30,1202,24,6,0,2,-1,-1],[2,30,1203,10,22,0,0,-1,-1],[2,31,1207,28,3,2,1,-1,-1],[2,31,1208,20,17,1,0,-1,-1],[2,31,1208,6,13,0,0,-1,-1],[2,31,1208,23,16,2,2,-1,-1],[2,31,1208,15,19,1,1,-1,-1],[2,31,1209,10,5,2,2,-1,-1],[2,31,1209,25,27,1,1,-1,-1],[2,31,1210,22,12,1,0,-1,-1],[2,31,1210,7,24,0,3,-1,-1],[2,32,1214,13,10,3,1,-1,-1],[2,32,1215,3,20,1,0,-1,-1],[2,32,1215,16,6,0,1,-1,-1],[2,32,1215,12,28,4,2,-1,-1],[2,32,1215,5,22,0,1,-1,-1],[2,32,1216,27,23,1,1,-1,-1],[2,32,1216,17,7,1,2,-1,-1],[2,32,1216,24,15,4,1,-1,-1],[2,32,1217,19,25,1,1,-1,-1],[2,33,1221,7,27,1,1,-1,-1],[2,33,1222,10,17,1,0,-1,-1],[2,33,1222,6,12,0,1,-1,-1],[2,33,1222,20,24,2,3,-1,-1],[2,33,1223,15,25,3,0,-1,-1],[2,33,1223,28,16,1,1,-1,-1],[2,33,1223,22,3,1,0,-1,-1],[2,33,1223,23,19,2,0,-1,-1],[2,33,1224,5,13,2,3,-1,-1],[2,34,1228,19,6,0,2,-1,-1],[2,34,1229,25,7,2,2,-1,-1],[2,34,1229,3,5,0,0,-1,-1],[2,34,1229,17,28,4,1,-1,-1],[2,34,1229,12,10,2,0,-1,-1],[2,34,1229,16,20,0,1,-1,-1],[2,34,1229,24,23,4,0,-1,-1],[2,34,1230,13,22,3,2,-1,-1],[2,34,1230,27,15,5,0,-1,-1],[3,1,1312,6,3,4,0,2.7,0.4],[3,1,1313,21,28,0,1,0.2,1.4],[3,1,1313,10,13,2,0,1.8,1.5],[3,1,1313,12,16,5,1,3.2,1.6],[3,1,1314,23,8,0,0,0.3,1.3],[3,1,1314,22,24,3,3,1.4,1.8],[3,1,1314,20,7,0,1,1.3,0.7],[3,1,1314,9,27,0,1,0.9,1],[3,1,1315,15,19,1,0,1.4,0.9],[3,2,1319,13,22,0,3,1,2.3],[3,2,1320,8,6,0,1,0.2,1.6],[3,2,1320,24,21,3,0,2.2,0.1],[3,2,1321,7,23,2,1,2.1,0.4],[3,2,1321,28,12,0,1,0.2,0.9],[3,2,1321,27,10,1,0,1.1,0.5],[3,2,1322,16,9,1,2,1,2.4],[3,2,1322,3,15,1,0,0.8,1],[3,2,1322,19,20,0,3,0.5,1],[3,3,1326,10,21,2,2,1,0.7],[3,3,1327,23,3,1,2,1.4,1.3],[3,3,1327,9,28,1,1,0.6,1],[3,3,1327,12,24,3,0,3,0.8],[3,3,1328,8,7,2,0,1.4,0.8],[3,3,1328,22,16,5,0,1.8,0.3],[3,3,1328,20,27,2,1,1.9,1.1],[3,3,1329,15,13,0,0,1.1,0.6],[3,3,1337,6,19,3,2,3.4,0.7],[3,4,1333,19,10,0,3,0.7,2.1],[3,4,1334,16,20,0,1,0.9,1.3],[3,4,1334,7,6,0,3,0.1,2.9],[3,4,1334,24,9,0,2,1.7,0.6],[3,4,1335,13,23,1,0,1.5,0.9],[3,4,1335,3,22,0,6,0.8,2.6],[3,4,1335,21,12,3,1,0.7,2.3],[3,4,1336,27,8,0,1,1.1,0.7],[3,4,1336,28,15,2,2,1.4,1.4],[3,5,1340,6,28,2,1,2.4,0.6],[3,5,1340,10,24,0,2,0.8,1.8],[3,5,1341,22,27,1,0,2.2,0.7],[3,5,1341,15,12,0,2,0.7,2.3],[3,5,1342,8,3,0,0,0.3,0.2],[3,5,1342,23,16,2,1,1.6,1.6],[3,5,1342,20,13,1,0,0.7,0.7],[3,5,1343,7,19,1,0,1,0.8],[3,5,1343,9,21,1,1,2.4,0.9],[3,6,1347,27,23,1,0,0.9,0.7],[3,6,1348,13,6,0,1,0.3,1.4],[3,6,1348,24,20,4,0,1.2,0.4],[3,6,1348,12,9,3,0,2.8,0.5],[3,6,1349,19,8,2,3,1.6,1.4],[3,6,1349,3,7,1,2,0.8,1.5],[3,6,1349,16,15,1,2,1.5,2.3],[3,6,1349,21,22,2,3,1,2.7],[3,6,1350,28,10,0,1,3.1,0.4],[3,7,1354,20,9,1,0,1.9,1.1],[3,7,1355,23,19,1,1,1,0.5],[3,7,1355,15,21,2,2,1.9,0.6],[3,7,1355,10,12,1,1,0.7,1.6],[3,7,1355,7,24,2,1,1.5,0.9],[3,7,1356,3,27,2,2,0.8,1.4],[3,7,1356,6,16,5,0,3.5,0.2],[3,7,1356,8,13,1,0,0.8,0.5],[3,7,1356,22,28,2,0,1.8,0.8],[3,8,1368,24,15,3,1,2.6,1.5],[3,8,1368,12,22,4,1,4.3,0.4],[3,8,1369,28,20,1,0,0.9,1.2],[3,8,1369,9,10,1,1,0.7,1.6],[3,8,1369,27,6,0,0,0.3,0.5],[3,8,1370,21,23,1,0,0.3,0.3],[3,8,1370,19,3,1,1,0.4,1.1],[3,8,1370,13,7,4,0,1,0.4],[3,8,1371,16,8,1,2,2.2,2.5],[3,9,1375,15,10,0,1,1.1,1],[3,9,1376,23,24,1,2,0.8,1.4],[3,9,1376,6,21,4,2,3.8,0.8],[3,9,1376,20,12,0,2,1.3,1.1],[3,9,1376,19,27,0,1,2.3,0.5],[3,9,1377,7,16,1,1,1.5,1.8],[3,9,1377,8,28,0,1,0.7,0.5],[3,9,1377,22,9,0,1,1.7,0.3],[3,9,1378,3,13,4,1,1.2,0.9],[3,10,1389,12,6,0,1,0.9,1.9],[3,10,1390,13,19,2,1,0.6,0.8],[3,10,1390,10,22,0,2,0.2,0.9],[3,10,1390,24,8,3,1,3.4,0.7],[3,10,1391,28,23,0,1,1,0.6],[3,10,1391,16,3,1,1,0.8,1.5],[3,10,1391,9,15,3,1,2.4,0.9],[3,10,1391,27,7,3,2,2.1,0.8],[3,10,1392,21,20,1,0,1,1],[3,11,1396,19,16,0,1,-1,-1],[3,11,1397,23,12,1,1,-1,-1],[3,11,1397,6,9,5,0,-1,-1],[3,11,1397,3,24,1,0,-1,-1],[3,11,1398,7,28,2,2,-1,-1],[3,11,1398,20,10,1,1,-1,-1],[3,11,1398,8,21,1,0,-1,-1],[3,11,1398,15,22,0,1,-1,-1],[3,11,1399,27,13,3,2,-1,-1],[3,12,1403,15,20,1,2,-1,-1],[3,12,1404,28,3,0,1,-1,-1],[3,12,1404,12,19,4,0,-1,-1],[3,12,1404,24,27,3,0,-1,-1],[3,12,1405,21,7,1,0,-1,-1],[3,12,1405,16,13,0,0,-1,-1],[3,12,1405,22,8,0,1,-1,-1],[3,12,1405,10,6,1,5,-1,-1],[3,12,1406,9,23,0,0,-1,-1],[3,13,1411,3,21,0,1,-1,-1],[3,13,1411,7,12,1,4,-1,-1],[3,13,1412,19,28,0,2,-1,-1],[3,13,1412,27,16,1,0,-1,-1],[3,13,1412,6,15,3,1,-1,-1],[3,13,1412,8,9,1,2,-1,-1],[3,13,1412,20,22,1,2,-1,-1],[3,13,1412,13,24,1,2,-1,-1],[3,13,1413,23,10,3,1,-1,-1],[3,14,1452,21,16,1,1,-1,-1],[3,14,1457,20,8,1,2,-1,-1],[3,14,1457,12,3,5,1,-1,-1],[3,14,1458,15,23,1,0,-1,-1],[3,14,1458,24,19,3,0,-1,-1],[3,14,1459,9,13,0,2,-1,-1],[3,14,1459,28,27,3,0,-1,-1],[3,14,1459,22,6,3,0,-1,-1],[3,14,1500,10,7,2,1,-1,-1],[3,15,1465,23,22,0,4,-1,-1],[3,15,1466,6,20,1,0,-1,-1],[3,15,1466,13,28,2,1,-1,-1],[3,15,1467,3,10,2,0,-1,-1],[3,15,1467,27,21,0,0,-1,-1],[3,15,1467,8,12,0,0,-1,-1],[3,15,1468,19,9,1,1,-1,-1],[3,15,1468,16,24,1,0,-1,-1],[3,15,1468,7,15,1,0,-1,-1],[3,16,1473,20,23,0,0,-1,-1],[3,16,1474,28,16,3,0,-1,-1],[3,16,1474,21,19,0,1,-1,-1],[3,16,1474,22,7,1,0,-1,-1],[3,16,1475,9,3,1,1,-1,-1],[3,16,1475,6,24,2,2,-1,-1],[3,16,1475,12,13,4,1,-1,-1],[3,16,1476,10,8,2,0,-1,-1],[3,16,1476,15,27,2,1,-1,-1],[3,17,1480,3,20,4,0,-1,-1],[3,17,1480,24,28,2,1,-1,-1],[3,17,1481,19,22,1,2,-1,-1],[3,17,1481,23,6,0,3,-1,-1],[3,17,1481,27,12,0,1,-1,-1],[3,17,1482,16,10,1,0,-1,-1],[3,17,1482,8,15,1,3,-1,-1],[3,17,1482,13,21,0,0,-1,-1],[3,17,1483,7,9,1,1,-1,-1],[3,18,1489,8,23,2,1,-1,-1],[3,18,1489,28,21,3,1,-1,-1],[3,18,1489,7,20,4,2,-1,-1],[3,18,1489,13,10,1,0,-1,-1],[3,18,1490,27,9,2,1,-1,-1],[3,18,1491,19,15,2,1,-1,-1],[3,18,1491,3,6,0,3,-1,-1],[3,18,1492,16,12,0,2,-1,-1],[3,18,1492,24,22,5,0,-1,-1],[3,19,1495,23,7,2,2,-1,-1],[3,19,1495,6,8,3,0,-1,-1],[3,19,1495,10,27,0,1,-1,-1],[3,19,1496,9,16,2,1,-1,-1],[3,19,1496,22,13,4,1,-1,-1],[3,19,1496,12,28,2,0,-1,-1],[3,19,1496,15,3,1,1,-1,-1],[3,19,1497,20,19,1,0,-1,-1],[3,19,1497,21,24,0,1,-1,-1],[3,20,1486,19,6,0,2,-1,-1],[3,20,1501,28,9,0,0,-1,-1],[3,20,1502,3,23,1,0,-1,-1],[3,20,1502,27,20,1,0,-1,-1],[3,20,1503,13,15,0,1,-1,-1],[3,20,1503,24,12,1,2,-1,-1],[3,20,1503,16,22,1,2,-1,-1],[3,20,1504,21,10,2,0,-1,-1],[3,20,1504,7,8,0,0,-1,-1],[3,21,1508,15,28,1,1,-1,-1],[3,21,1509,10,19,1,3,-1,-1],[3,21,1509,20,16,2,1,-1,-1],[3,21,1509,12,21,1,0,-1,-1],[3,21,1510,23,13,1,3,-1,-1],[3,21,1510,22,3,2,0,-1,-1],[3,21,1510,8,27,0,0,-1,-1],[3,21,1511,9,24,2,3,-1,-1],[3,21,1511,6,7,3,1,-1,-1],[3,22,1515,13,20,1,0,-1,-1],[3,22,1516,3,8,2,0,-1,-1],[3,22,1516,16,23,3,1,-1,-1],[3,22,1516,28,6,0,2,-1,-1],[3,22,1517,21,9,1,0,-1,-1],[3,22,1517,19,7,1,3,-1,-1],[3,22,1517,12,15,1,2,-1,-1],[3,22,1518,24,10,2,0,-1,-1],[3,22,1518,27,22,2,1,-1,-1],[3,23,1522,7,3,0,0,-1,-1],[3,23,1522,6,13,2,0,-1,-1],[3,23,1523,10,28,0,3,-1,-1],[3,23,1523,20,24,0,1,-1,-1],[3,23,1523,9,12,1,3,-1,-1],[3,23,1524,15,16,2,0,-1,-1],[3,23,1524,23,27,1,3,-1,-1],[3,23,1524,22,21,2,0,-1,-1],[3,23,1525,8,19,2,1,-1,-1],[3,24,1529,12,10,3,2,-1,-1],[3,24,1530,9,20,2,0,-1,-1],[3,24,1530,19,23,1,0,-1,-1],[3,24,1530,27,3,0,2,-1,-1],[3,24,1530,28,22,0,4,-1,-1],[3,24,1531,21,15,2,1,-1,-1],[3,24,1531,16,6,0,3,-1,-1],[3,24,1531,24,7,3,0,-1,-1],[3,24,1532,13,8,1,0,-1,-1],[3,25,1536,23,21,0,2,-1,-1],[3,25,1537,20,28,0,1,-1,-1],[3,25,1537,6,27,5,1,-1,-1],[3,25,1537,3,19,1,1,-1,-1],[3,25,1537,10,9,0,2,-1,-1],[3,25,1538,8,16,2,0,-1,-1],[3,25,1538,22,12,0,0,-1,-1],[3,25,1538,7,13,1,2,-1,-1],[3,25,1555,15,24,0,0,-1,-1],[3,26,1550,10,15,1,0,-1,-1],[3,26,1551,28,8,3,1,-1,-1],[3,26,1551,27,19,0,0,-1,-1],[3,26,1551,24,23,3,0,-1,-1],[3,26,1552,9,22,1,2,-1,-1],[3,26,1552,16,7,4,2,-1,-1],[3,26,1552,21,6,0,1,-1,-1],[3,26,1552,12,20,1,0,-1,-1],[3,26,1553,13,3,0,1,-1,-1],[3,27,1557,23,28,0,1,-1,-1],[3,27,1557,6,12,1,2,-1,-1],[3,27,1557,7,27,2,1,-1,-1],[3,27,1558,3,16,1,0,-1,-1],[3,27,1558,19,13,1,3,-1,-1],[3,27,1558,20,21,2,2,-1,-1],[3,27,1558,22,10,4,1,-1,-1],[3,27,1559,8,24,3,4,-1,-1],[3,27,1560,15,9,0,0,-1,-1],[3,28,1564,13,27,2,1,-1,-1],[3,28,1565,10,20,0,1,-1,-1],[3,28,1565,16,19,3,1,-1,-1],[3,28,1565,9,6,1,0,-1,-1],[3,28,1565,12,23,2,1,-1,-1],[3,28,1566,21,8,1,1,-1,-1],[3,28,1566,22,15,1,0,-1,-1],[3,28,1566,24,3,1,1,-1,-1],[3,28,1567,28,7,1,1,-1,-1],[3,29,1571,8,22,0,1,-1,-1],[3,29,1572,13,16,3,2,-1,-1],[3,29,1572,7,21,3,2,-1,-1],[3,29,1572,19,12,0,2,-1,-1],[3,29,1573,20,15,1,0,-1,-1],[3,29,1573,6,10,1,0,-1,-1],[3,29,1573,23,9,1,1,-1,-1],[3,29,1573,3,28,1,0,-1,-1],[3,29,1574,27,24,0,2,-1,-1],[3,30,1578,21,3,1,0,-1,-1],[3,30,1579,16,27,1,2,-1,-1],[3,30,1579,22,20,4,1,-1,-1],[3,30,1579,28,19,1,2,-1,-1],[3,30,1579,9,8,1,0,-1,-1],[3,30,1579,15,6,0,2,-1,-1],[3,30,1580,10,23,3,0,-1,-1],[3,30,1580,12,7,1,0,-1,-1],[3,30,1580,24,13,2,1,-1,-1],[3,31,1585,8,20,1,1,-1,-1],[3,31,1586,23,15,3,2,-1,-1],[3,31,1586,7,10,1,0,-1,-1],[3,31,1586,6,22,1,0,-1,-1],[3,31,1587,16,21,2,2,-1,-1],[3,31,1587,27,28,3,0,-1,-1],[3,31,1587,19,24,0,4,-1,-1],[3,31,1588,13,9,1,2,-1,-1],[3,31,1588,3,12,0,1,-1,-1],[3,32,1592,15,7,3,1,-1,-1],[3,32,1593,28,13,0,0,-1,-1],[3,32,1593,9,19,2,0,-1,-1],[3,32,1593,20,6,1,5,-1,-1],[3,32,1593,24,16,2,1,-1,-1],[3,32,1594,21,27,0,1,-1,-1],[3,32,1594,22,23,5,3,-1,-1],[3,32,1594,12,8,2,1,-1,-1],[3,32,1595,10,3,2,0,-1,-1],[3,33,1599,16,28,1,0,-1,-1],[3,33,1600,23,20,1,0,-1,-1],[3,33,1600,3,9,1,0,-1,-1],[3,33,1600,7,22,1,1,-1,-1],[3,33,1600,13,12,2,4,-1,-1],[3,33,1601,27,15,1,0,-1,-1],[3,33,1601,8,10,2,2,-1,-1],[3,33,1601,19,21,3,1,-1,-1],[3,33,1601,24,6,2,2,-1,-1],[3,34,1606,21,13,2,2,-1,-1],[3,34,1606,28,24,1,2,-1,-1],[3,34,1607,15,8,1,0,-1,-1],[3,34,1607,9,7,1,4,-1,-1],[3,34,1607,10,16,3,1,-1,-1],[3,34,1607,6,23,3,0,-1,-1],[3,34,1607,12,27,3,0,-1,-1],[3,34,1607,20,3,0,2,-1,-1],[3,34,1607,22,19,3,0,-1,-1],[4,1,1683,22,13,1,2,-1,-1],[4,1,1684,15,20,5,0,-1,-1],[4,1,1684,14,8,0,3,-1,-1],[4,1,1684,24,28,3,2,-1,-1],[4,1,1685,21,9,2,0,-1,-1],[4,1,1685,11,27,0,1,-1,-1],[4,1,1685,3,10,4,3,-1,-1],[4,1,1686,17,12,1,2,-1,-1],[4,1,1686,7,6,3,2,-1,-1],[4,2,1690,8,24,1,2,-1,-1],[4,2,1691,27,15,2,1,-1,-1],[4,2,1691,9,22,2,4,-1,-1],[4,2,1691,6,11,2,0,-1,-1],[4,2,1691,20,7,1,4,-1,-1],[4,2,1692,10,21,2,0,-1,-1],[4,2,1692,12,14,2,1,-1,-1],[4,2,1692,28,3,2,2,-1,-1],[4,2,1693,13,17,0,0,-1,-1],[4,3,1697,11,10,2,1,-1,-1],[4,3,1698,3,20,1,1,-1,-1],[4,3,1698,14,9,5,0,-1,-1],[4,3,1698,15,6,2,3,-1,-1],[4,3,1699,7,8,1,1,-1,-1],[4,3,1699,27,28,2,0,-1,-1],[4,3,1699,24,13,1,0,-1,-1],[4,3,1700,21,12,1,2,-1,-1],[4,4,1704,28,15,1,0,-1,-1],[4,4,1705,8,21,1,1,-1,-1],[4,4,1705,13,14,1,0,-1,-1],[4,4,1705,20,11,1,1,-1,-1],[4,4,1705,6,27,4,0,-1,-1],[4,4,1706,9,17,1,2,-1,-1],[4,4,1706,10,7,1,2,-1,-1],[4,4,1706,12,3,1,1,-1,-1],[4,4,1706,22,24,1,1,-1,-1],[4,3,1712,17,22,2,3,-1,-1],[4,5,1718,11,12,0,1,-1,-1],[4,5,1719,21,13,1,1,-1,-1],[4,5,1719,14,22,3,1,-1,-1],[4,5,1719,28,6,1,2,-1,-1],[4,5,1720,3,8,0,1,-1,-1],[4,5,1720,15,10,5,3,-1,-1],[4,5,1720,27,20,1,2,-1,-1],[4,5,1720,24,17,3,0,-1,-1],[4,5,1721,7,9,4,1,-1,-1],[4,6,1725,13,3,1,0,-1,-1],[4,6,1726,17,14,1,0,-1,-1],[4,6,1726,10,28,2,2,-1,-1],[4,6,1726,8,27,0,0,-1,-1],[4,6,1726,12,15,2,1,-1,-1],[4,6,1727,9,11,2,2,-1,-1],[4,6,1727,20,6,1,3,-1,-1],[4,6,1727,22,7,4,1,-1,-1],[4,6,1728,24,21,2,0,-1,-1],[4,7,1731,11,22,2,4,-1,-1],[4,7,1732,6,12,1,0,-1,-1],[4,7,1733,28,20,2,3,-1,-1],[4,7,1733,7,13,2,2,-1,-1],[4,7,1733,14,24,2,3,-1,-1],[4,7,1734,3,9,0,2,-1,-1],[4,7,1734,27,10,3,2,-1,-1],[4,7,1734,21,17,0,4,-1,-1],[4,7,1735,15,8,2,0,-1,-1],[4,8,1739,17,7,1,1,-1,-1],[4,8,1740,9,15,4,2,-1,-1],[4,8,1740,14,28,0,0,-1,-1],[4,8,1740,22,21,2,1,-1,-1],[4,8,1740,10,6,0,1,-1,-1],[4,8,1741,8,11,0,1,-1,-1],[4,8,1741,13,27,1,3,-1,-1],[4,8,1741,12,20,1,0,-1,-1],[4,8,1741,24,3,2,1,-1,-1],[4,9,1760,3,17,0,1,-1,-1],[4,9,1761,20,10,1,0,-1,-1],[4,9,1761,6,8,1,1,-1,-1],[4,9,1761,27,9,5,0,-1,-1],[4,9,1761,15,22,3,3,-1,-1],[4,9,1762,21,14,3,4,-1,-1],[4,9,1762,11,13,1,0,-1,-1],[4,9,1762,28,12,0,2,-1,-1],[4,9,1763,7,24,0,2,-1,-1],[4,10,1767,12,10,0,1,-1,-1],[4,10,1768,9,6,0,2,-1,-1],[4,10,1768,13,15,3,1,-1,-1],[4,10,1768,22,20,6,1,-1,-1],[4,10,1769,8,28,0,1,-1,-1],[4,10,1769,17,27,1,0,-1,-1],[4,10,1769,21,7,2,0,-1,-1],[4,10,1769,24,11,3,2,-1,-1],[4,10,1770,14,3,2,0,-1,-1],[4,11,1774,10,8,4,0,-1,-1],[4,11,1775,20,9,2,1,-1,-1],[4,11,1775,11,17,0,1,-1,-1],[4,11,1775,28,13,0,0,-1,-1],[4,11,1775,27,12,1,2,-1,-1],[4,11,1776,7,14,1,3,-1,-1],[4,11,1776,15,21,1,1,-1,-1],[4,11,1776,3,22,0,1,-1,-1],[4,11,1776,6,24,2,1,-1,-1],[4,12,1795,9,28,2,1,-1,-1],[4,12,1796,21,11,1,1,-1,-1],[4,12,1796,14,27,1,2,-1,-1],[4,12,1796,13,12,0,3,-1,-1],[4,12,1796,8,20,1,0,-1,-1],[4,12,1797,22,10,3,1,-1,-1],[4,12,1797,17,6,0,0,-1,-1],[4,12,1797,7,3,0,4,-1,-1],[4,12,1798,24,15,3,1,-1,-1],[4,13,1802,28,22,1,3,-1,-1],[4,13,1802,6,14,1,1,-1,-1],[4,13,1803,20,13,1,1,-1,-1],[4,13,1803,27,24,3,2,-1,-1],[4,13,1803,12,8,3,1,-1,-1],[4,13,1804,11,7,3,1,-1,-1],[4,13,1804,3,21,2,2,-1,-1],[4,13,1804,10,9,4,0,-1,-1],[4,13,1805,15,17,1,1,-1,-1],[4,14,1809,14,11,0,0,-1,-1],[4,14,1810,21,28,1,1,-1,-1],[4,14,1810,3,15,3,0,-1,-1],[4,14,1810,7,27,1,1,-1,-1],[4,14,1811,17,20,5,2,-1,-1],[4,14,1811,9,8,1,3,-1,-1],[4,14,1811,13,10,1,1,-1,-1],[4,14,1811,22,6,0,1,-1,-1],[4,14,1812,24,12,2,0,-1,-1],[4,15,1817,28,17,0,0,-1,-1],[4,15,1817,27,21,1,0,-1,-1],[4,15,1822,11,3,1,4,-1,-1],[4,15,1823,6,13,3,0,-1,-1],[4,15,1823,12,9,1,0,-1,-1],[4,15,1824,10,14,4,0,-1,-1],[4,15,1824,15,7,1,0,-1,-1],[4,15,1824,8,22,1,3,-1,-1],[4,15,1824,20,24,1,2,-1,-1],[4,16,1830,24,10,5,1,-1,-1],[4,16,1830,7,12,1,1,-1,-1],[4,16,1831,11,28,1,1,-1,-1],[4,16,1831,14,15,1,0,-1,-1],[4,16,1831,3,6,0,3,-1,-1],[4,16,1831,22,27,1,1,-1,-1],[4,16,1832,21,20,2,0,-1,-1],[4,16,1832,13,9,2,2,-1,-1],[4,16,1833,17,8,1,4,-1,-1],[4,17,1837,20,14,1,0,-1,-1],[4,17,1838,8,13,0,2,-1,-1],[4,17,1838,9,24,0,3,-1,-1],[4,17,1838,10,17,1,3,-1,-1],[4,17,1839,15,11,1,1,-1,-1],[4,17,1839,6,21,4,1,-1,-1],[4,17,1839,28,7,1,4,-1,-1],[4,17,1839,12,22,2,0,-1,-1],[4,17,1840,27,3,2,1,-1,-1],[4,18,1843,13,22,1,2,-1,-1],[4,18,1843,28,24,2,5,-1,-1],[4,18,1844,6,7,2,0,-1,-1],[4,18,1845,10,3,1,2,-1,-1],[4,18,1845,8,14,1,3,-1,-1],[4,18,1845,12,17,5,0,-1,-1],[4,18,1846,20,15,0,2,-1,-1],[4,18,1846,9,21,0,0,-1,-1],[4,18,1846,27,11,3,0,-1,-1],[4,19,1853,7,20,1,4,-1,-1],[4,19,1853,17,13,1,0,-1,-1],[4,19,1853,14,12,1,3,-1,-1],[4,19,1853,3,28,5,0,-1,-1],[4,19,1853,15,27,1,0,-1,-1],[4,19,1854,11,6,1,4,-1,-1],[4,19,1854,24,8,8,0,-1,-1],[4,19,1856,21,10,1,1,-1,-1],[4,19,1856,22,9,1,1,-1,-1],[4,20,1859,20,3,1,2,-1,-1],[4,20,1859,12,21,0,0,-1,-1],[4,20,1860,28,27,0,1,-1,-1],[4,20,1860,9,14,1,1,-1,-1],[4,20,1860,6,15,3,0,-1,-1],[4,20,1860,10,11,1,0,-1,-1],[4,20,1860,22,17,1,0,-1,-1],[4,20,1861,8,7,0,0,-1,-1],[4,21,1865,11,20,3,0,-1,-1],[4,21,1866,14,13,1,1,-1,-1],[4,21,1866,17,9,1,0,-1,-1],[4,21,1866,7,10,2,1,-1,-1],[4,21,1867,21,8,1,0,-1,-1],[4,21,1867,24,22,5,0,-1,-1],[4,21,1867,27,6,2,2,-1,-1],[4,21,1868,3,12,3,2,-1,-1],[4,21,1869,15,28,0,1,-1,-1],[4,22,1872,13,21,2,1,-1,-1],[4,22,1873,9,7,2,1,-1,-1],[4,22,1873,20,27,1,1,-1,-1],[4,22,1873,12,11,2,0,-1,-1],[4,22,1874,8,3,1,0,-1,-1],[4,22,1874,6,28,6,1,-1,-1],[4,22,1874,10,15,1,3,-1,-1],[4,22,1874,22,14,2,1,-1,-1],[4,22,1875,17,24,0,2,-1,-1],[4,23,1879,3,13,3,2,-1,-1],[4,23,1880,14,17,0,1,-1,-1],[4,23,1880,11,9,1,1,-1,-1],[4,23,1880,27,8,0,2,-1,-1],[4,23,1881,28,10,3,3,-1,-1],[4,23,1881,6,20,4,0,-1,-1],[4,23,1881,15,12,1,1,-1,-1],[4,23,1881,21,24,3,3,-1,-1],[4,23,1882,7,22,0,4,-1,-1],[4,24,1886,9,3,1,5,-1,-1],[4,24,1887,17,21,0,0,-1,-1],[4,24,1887,10,27,1,3,-1,-1],[4,24,1887,22,11,3,0,-1,-1],[4,24,1888,8,15,0,0,-1,-1],[4,24,1888,20,28,0,0,-1,-1],[4,24,1888,24,14,3,2,-1,-1],[4,24,1888,12,6,5,0,-1,-1],[4,24,1889,13,7,1,1,-1,-1],[4,25,1893,20,12,0,3,-1,-1],[4,25,1893,11,8,3,1,-1,-1],[4,25,1894,28,14,2,1,-1,-1],[4,25,1894,7,17,1,0,-1,-1],[4,25,1894,21,22,0,0,-1,-1],[4,25,1894,27,13,1,0,-1,-1],[4,25,1895,3,24,0,3,-1,-1],[4,25,1895,6,10,3,1,-1,-1],[4,25,1896,15,9,0,0,-1,-1],[4,26,1900,10,20,1,0,-1,-1],[4,26,1901,13,11,0,0,-1,-1],[4,26,1901,14,21,1,1,-1,-1],[4,26,1901,22,15,2,1,-1,-1],[4,26,1901,12,28,4,1,-1,-1],[4,26,1902,17,3,1,0,-1,-1],[4,26,1902,9,27,1,2,-1,-1],[4,26,1902,8,6,0,1,-1,-1],[4,26,1902,24,7,6,1,-1,-1],[4,27,1914,15,13,1,2,-1,-1],[4,27,1914,6,9,1,0,-1,-1],[4,27,1914,11,24,1,2,-1,-1],[4,27,1915,3,14,2,1,-1,-1],[4,27,1915,27,17,1,0,-1,-1],[4,27,1915,7,21,0,0,-1,-1],[4,27,1915,10,12,1,0,-1,-1],[4,27,1916,28,8,0,4,-1,-1],[4,27,1917,20,22,3,5,-1,-1],[4,28,1921,14,7,2,0,-1,-1],[4,28,1922,13,28,3,2,-1,-1],[4,28,1922,21,15,3,0,-1,-1],[4,28,1922,22,3,0,3,-1,-1],[4,28,1922,24,6,2,1,-1,-1],[4,28,1923,9,20,2,3,-1,-1],[4,28,1923,17,11,2,2,-1,-1],[4,28,1923,12,27,1,2,-1,-1],[4,28,1924,8,10,0,0,-1,-1],[4,29,1928,15,24,0,4,-1,-1],[4,29,1929,27,14,1,1,-1,-1],[4,29,1929,12,13,2,2,-1,-1],[4,29,1929,10,22,0,1,-1,-1],[4,29,1930,11,21,2,2,-1,-1],[4,29,1930,3,7,2,1,-1,-1],[4,29,1930,20,8,2,2,-1,-1],[4,29,1930,6,17,3,0,-1,-1],[4,29,1931,28,9,0,1,-1,-1],[4,20,1932,13,24,0,1,-1,-1],[4,30,1935,21,3,1,1,-1,-1],[4,30,1936,17,15,0,1,-1,-1],[4,30,1936,7,11,1,1,-1,-1],[4,30,1936,22,28,2,1,-1,-1],[4,30,1937,13,20,2,2,-1,-1],[4,30,1937,9,10,2,2,-1,-1],[4,30,1937,8,12,1,2,-1,-1],[4,30,1937,24,27,3,0,-1,-1],[4,30,1938,14,6,1,3,-1,-1],[4,31,1942,15,3,2,2,-1,-1],[4,31,1943,8,9,3,1,-1,-1],[4,31,1943,28,21,1,1,-1,-1],[4,31,1943,6,22,3,1,-1,-1],[4,31,1943,27,7,1,0,-1,-1],[4,31,1944,20,17,0,2,-1,-1],[4,31,1944,10,13,1,0,-1,-1],[4,31,1944,12,24,2,2,-1,-1],[4,31,1945,11,14,0,3,-1,-1],[4,32,1949,17,28,1,0,-1,-1],[4,32,1950,7,15,1,1,-1,-1],[4,32,1950,21,27,2,1,-1,-1],[4,32,1950,24,20,3,0,-1,-1],[4,32,1950,9,12,0,3,-1,-1],[4,32,1951,14,10,3,2,-1,-1],[4,32,1951,3,11,0,0,-1,-1],[4,32,1951,22,8,4,3,-1,-1],[4,32,1951,13,6,2,0,-1,-1],[4,33,1956,9,13,0,1,-1,-1],[4,33,1957,20,21,2,2,-1,-1],[4,33,1957,28,11,4,0,-1,-1],[4,33,1957,10,24,0,1,-1,-1],[4,33,1957,27,22,2,3,-1,-1],[4,33,1958,15,14,2,0,-1,-1],[4,33,1958,6,3,5,0,-1,-1],[4,33,1958,8,17,0,1,-1,-1],[4,33,1958,12,7,2,1,-1,-1],[4,34,1963,13,8,1,2,-1,-1],[4,34,1963,21,6,1,1,-1,-1],[4,34,1964,7,28,2,2,-1,-1],[4,34,1964,11,15,1,0,-1,-1],[4,34,1964,3,27,1,3,-1,-1],[4,34,1964,14,20,1,3,-1,-1],[4,34,1964,17,10,2,1,-1,-1],[4,34,1964,24,9,3,0,-1,-1],[4,34,1964,22,12,0,1,-1,-1],[5,1,2047,24,21,3,1,-1,-1],[5,1,2048,0,18,1,1,-1,-1],[5,1,2048,8,7,0,1,-1,-1],[5,1,2048,12,15,3,0,-1,-1],[5,1,2049,10,23,1,4,-1,-1],[5,1,2049,14,17,1,2,-1,-1],[5,1,2049,13,6,2,0,-1,-1],[5,1,2049,22,11,1,1,-1,-1],[5,1,2050,3,27,0,1,-1,-1],[5,2,2054,23,12,0,2,-1,-1],[5,2,2054,15,0,4,2,-1,-1],[5,2,2055,21,14,1,0,-1,-1],[5,2,2055,18,24,1,6,-1,-1],[5,2,2055,6,8,3,0,-1,-1],[5,2,2056,17,3,3,1,-1,-1],[5,2,2056,27,10,1,0,-1,-1],[5,2,2056,7,22,0,1,-1,-1],[5,2,2057,11,13,0,3,-1,-1],[5,3,2061,14,24,0,5,-1,-1],[5,3,2062,8,23,0,2,-1,-1],[5,3,2062,12,21,2,0,-1,-1],[5,3,2062,6,11,1,0,-1,-1],[5,3,2062,13,7,1,0,-1,-1],[5,3,2063,3,18,1,0,-1,-1],[5,3,2063,10,15,0,0,-1,-1],[5,3,2063,22,17,3,1,-1,-1],[5,3,2063,0,27,1,0,-1,-1],[5,4,2068,17,6,1,1,-1,-1],[5,4,2069,23,0,2,1,-1,-1],[5,4,2069,7,10,0,0,-1,-1],[5,4,2069,11,8,0,1,-1,-1],[5,4,2069,24,12,2,0,-1,-1],[5,4,2070,18,14,2,0,-1,-1],[5,4,2070,21,3,1,0,-1,-1],[5,4,2070,15,22,0,0,-1,-1],[5,4,2070,27,13,2,1,-1,-1],[5,5,2082,3,24,0,3,-1,-1],[5,5,2083,8,17,3,1,-1,-1],[5,5,2083,0,21,1,0,-1,-1],[5,5,2083,6,23,4,1,-1,-1],[5,5,2083,13,15,1,1,-1,-1],[5,5,2084,12,14,2,1,-1,-1],[5,5,2084,10,18,1,0,-1,-1],[5,5,2084,22,27,0,2,-1,-1],[5,5,2085,11,7,2,2,-1,-1],[5,6,2089,18,22,0,3,-1,-1],[5,6,2090,23,11,1,0,-1,-1],[5,6,2090,21,10,2,2,-1,-1],[5,6,2090,27,12,0,3,-1,-1],[5,6,2090,17,13,0,0,-1,-1],[5,6,2091,15,8,1,1,-1,-1],[5,6,2091,14,3,0,1,-1,-1],[5,6,2091,24,0,3,0,-1,-1],[5,6,2092,7,6,0,3,-1,-1],[5,7,2096,10,24,0,3,-1,-1],[5,7,2097,11,17,2,1,-1,-1],[5,7,2097,8,27,1,1,-1,-1],[5,7,2097,6,15,5,1,-1,-1],[5,7,2098,13,18,0,0,-1,-1],[5,7,2098,12,3,4,0,-1,-1],[5,7,2098,22,21,4,0,-1,-1],[5,7,2098,23,7,1,0,-1,-1],[5,7,2099,0,14,0,0,-1,-1],[5,8,2103,21,13,1,1,-1,-1],[5,8,2104,17,23,1,0,-1,-1],[5,8,2104,15,11,3,0,-1,-1],[5,8,2104,3,0,1,1,-1,-1],[5,8,2104,24,8,2,0,-1,-1],[5,8,2105,27,7,2,2,-1,-1],[5,8,2105,14,10,1,0,-1,-1],[5,8,2105,12,22,2,1,-1,-1],[5,9,2124,8,18,1,0,-1,-1],[5,9,2124,23,15,2,1,-1,-1],[5,9,2125,10,3,4,1,-1,-1],[5,9,2125,7,17,0,2,-1,-1],[5,9,2125,13,24,0,3,-1,-1],[5,9,2126,22,14,2,0,-1,-1],[5,9,2126,6,21,5,0,-1,-1],[5,9,2126,11,27,2,2,-1,-1],[5,9,2127,0,12,0,5,-1,-1],[5,10,2131,24,11,5,1,-1,-1],[5,10,2132,21,8,2,2,-1,-1],[5,10,2132,14,6,1,2,-1,-1],[5,10,2132,15,7,1,2,-1,-1],[5,10,2133,0,13,2,3,-1,-1],[5,10,2133,3,22,1,2,-1,-1],[5,10,2133,27,17,1,0,-1,-1],[5,10,2133,12,10,4,0,-1,-1],[5,10,2134,18,23,2,0,-1,-1],[5,11,2138,17,15,3,2,-1,-1],[5,11,2139,8,14,1,1,-1,-1],[5,11,2139,10,0,0,0,-1,-1],[5,11,2139,13,3,0,0,-1,-1],[5,11,2139,7,21,0,2,-1,-1],[5,11,2140,11,18,2,0,-1,-1],[5,11,2140,23,27,1,0,-1,-1],[5,11,2140,22,24,2,4,-1,-1],[5,11,2140,6,12,4,1,-1,-1],[5,12,2159,14,11,1,0,-1,-1],[5,12,2160,21,17,3,2,-1,-1],[5,12,2160,18,7,0,0,-1,-1],[5,12,2160,24,23,0,1,-1,-1],[5,12,2161,10,13,2,1,-1,-1],[5,12,2161,3,6,0,2,-1,-1],[5,12,2161,0,22,0,1,-1,-1],[5,12,2162,27,15,4,0,-1,-1],[5,12,2162,12,8,2,0,-1,-1],[5,13,2165,17,24,2,1,-1,-1],[5,13,2166,22,10,2,2,-1,-1],[5,13,2167,15,18,2,1,-1,-1],[5,13,2167,6,27,1,0,-1,-1],[5,13,2167,23,21,1,0,-1,-1],[5,13,2167,13,12,1,1,-1,-1],[5,13,2168,7,14,1,1,-1,-1],[5,13,2168,8,0,1,1,-1,-1],[5,13,2169,11,3,2,1,-1,-1],[5,14,2174,14,15,0,1,-1,-1],[5,14,2174,18,17,1,0,-1,-1],[5,14,2174,24,7,3,2,-1,-1],[5,14,2175,3,23,1,0,-1,-1],[5,14,2175,0,6,1,1,-1,-1],[5,14,2175,10,8,0,2,-1,-1],[5,14,2176,22,13,3,3,-1,-1],[5,14,2176,12,11,2,0,-1,-1],[5,14,2176,21,27,2,2,-1,-1],[5,8,2179,18,6,0,2,-1,-1],[5,15,2180,8,3,3,1,-1,-1],[5,15,2181,13,14,1,2,-1,-1],[5,15,2181,7,0,0,0,-1,-1],[5,15,2181,17,12,0,3,-1,-1],[5,15,2182,23,22,0,2,-1,-1],[5,15,2182,15,24,0,0,-1,-1],[5,15,2183,6,10,3,0,-1,-1],[5,15,2183,27,18,2,2,-1,-1],[5,15,2183,11,21,1,0,-1,-1],[5,16,2187,3,15,1,1,-1,-1],[5,16,2188,0,11,1,1,-1,-1],[5,16,2188,10,17,2,2,-1,-1],[5,16,2188,12,7,4,0,-1,-1],[5,16,2189,14,27,2,2,-1,-1],[5,16,2189,21,18,2,1,-1,-1],[5,16,2189,22,8,1,2,-1,-1],[5,16,2189,24,6,1,0,-1,-1],[5,16,2190,13,23,1,2,-1,-1],[5,17,2194,27,24,4,4,-1,-1],[5,17,2195,17,0,1,1,-1,-1],[5,17,2195,6,22,1,2,-1,-1],[5,17,2195,7,3,1,3,-1,-1],[5,17,2196,23,14,0,0,-1,-1],[5,17,2196,8,13,1,1,-1,-1],[5,17,2196,11,10,2,4,-1,-1],[5,17,2197,15,21,1,1,-1,-1],[5,17,2203,18,12,2,0,-1,-1],[5,18,2208,6,13,4,0,-1,-1],[5,18,2209,23,10,2,3,-1,-1],[5,18,2209,21,24,0,3,-1,-1],[5,18,2209,27,3,2,2,-1,-1],[5,18,2210,18,0,3,1,-1,-1],[5,18,2210,17,14,0,0,-1,-1],[5,18,2210,11,22,0,1,-1,-1],[5,18,2210,15,12,3,1,-1,-1],[5,18,2211,7,8,2,3,-1,-1],[5,19,2215,3,17,1,0,-1,-1],[5,19,2216,13,11,0,0,-1,-1],[5,19,2216,14,21,1,2,-1,-1],[5,19,2216,8,6,3,1,-1,-1],[5,19,2216,24,18,2,0,-1,-1],[5,19,2217,10,27,1,0,-1,-1],[5,19,2217,12,23,1,1,-1,-1],[5,19,2217,22,7,3,0,-1,-1],[5,19,2218,0,15,1,0,-1,-1],[5,20,2222,7,13,0,2,-1,-1],[5,20,2223,18,3,1,2,-1,-1],[5,20,2223,23,8,2,1,-1,-1],[5,20,2223,15,10,1,2,-1,-1],[5,20,2223,27,0,2,0,-1,-1],[5,20,2224,24,14,3,1,-1,-1],[5,20,2224,11,6,2,3,-1,-1],[5,20,2225,17,22,1,2,-1,-1],[5,20,2225,21,12,2,2,-1,-1],[5,21,2229,12,24,1,1,-1,-1],[5,21,2230,0,23,1,2,-1,-1],[5,21,2230,6,17,3,2,-1,-1],[5,21,2230,13,27,0,0,-1,-1],[5,21,2231,10,7,2,1,-1,-1],[5,21,2231,14,18,0,2,-1,-1],[5,21,2231,22,15,2,0,-1,-1],[5,21,2231,8,11,1,0,-1,-1],[5,21,2232,3,21,1,1,-1,-1],[5,22,2236,7,11,0,1,-1,-1],[5,22,2237,17,8,3,2,-1,-1],[5,22,2237,18,10,2,2,-1,-1],[5,22,2237,23,6,0,1,-1,-1],[5,22,2237,24,3,2,2,-1,-1],[5,22,2238,21,0,1,1,-1,-1],[5,22,2238,14,12,0,1,-1,-1],[5,22,2238,27,22,0,0,-1,-1],[5,22,2239,15,13,0,2,-1,-1],[5,23,2243,22,18,1,0,-1,-1],[5,23,2244,8,15,1,0,-1,-1],[5,23,2244,6,7,3,0,-1,-1],[5,23,2244,10,21,2,1,-1,-1],[5,23,2245,11,23,0,0,-1,-1],[5,23,2245,3,14,2,2,-1,-1],[5,23,2245,0,24,2,2,-1,-1],[5,23,2245,13,17,2,0,-1,-1],[5,23,2246,12,27,1,1,-1,-1],[5,24,2251,18,13,2,1,-1,-1],[5,24,2251,3,12,0,2,-1,-1],[5,24,2251,27,8,1,0,-1,-1],[5,24,2252,7,23,1,0,-1,-1],[5,24,2252,17,11,1,1,-1,-1],[5,24,2252,14,0,0,1,-1,-1],[5,24,2252,21,22,2,1,-1,-1],[5,24,2253,24,10,3,1,-1,-1],[5,25,2257,11,15,1,1,-1,-1],[5,25,2258,0,3,0,1,-1,-1],[5,25,2258,10,14,2,2,-1,-1],[5,25,2258,6,18,3,0,-1,-1],[5,25,2258,22,12,1,0,-1,-1],[5,25,2259,23,17,1,1,-1,-1],[5,25,2259,8,24,1,3,-1,-1],[5,25,2259,7,27,1,2,-1,-1],[5,25,2260,13,21,1,0,-1,-1],[5,26,2265,14,22,0,1,-1,-1],[5,26,2265,15,23,0,1,-1,-1],[5,26,2265,12,0,2,0,-1,-1],[5,26,2265,24,13,3,1,-1,-1],[5,26,2266,18,8,3,1,-1,-1],[5,26,2266,3,10,1,1,-1,-1],[5,26,2266,21,6,2,3,-1,-1],[5,26,2266,27,11,2,0,-1,-1],[5,26,2266,17,7,1,0,-1,-1],[5,24,2278,15,6,0,3,-1,-1],[5,27,2279,8,21,2,1,-1,-1],[5,27,2279,11,24,0,3,-1,-1],[5,27,2279,22,3,2,1,-1,-1],[5,27,2280,13,0,4,1,-1,-1],[5,27,2280,23,18,1,0,-1,-1],[5,27,2280,10,12,1,2,-1,-1],[5,27,2280,17,27,2,2,-1,-1],[5,27,2282,7,15,1,3,-1,-1],[5,27,2283,6,14,3,2,-1,-1],[5,28,2285,0,10,0,3,-1,-1],[5,28,2286,3,13,1,2,-1,-1],[5,28,2286,27,23,2,0,-1,-1],[5,28,2287,15,17,0,1,-1,-1],[5,28,2287,18,11,0,1,-1,-1],[5,28,2287,12,6,1,4,-1,-1],[5,28,2288,14,8,0,0,-1,-1],[5,28,2288,21,7,0,2,-1,-1],[5,28,2288,24,22,1,1,-1,-1],[5,29,2292,15,27,0,1,-1,-1],[5,29,2293,13,10,3,0,-1,-1],[5,29,2293,7,18,0,1,-1,-1],[5,29,2293,23,24,0,1,-1,-1],[5,29,2293,8,12,0,1,-1,-1],[5,29,2294,11,14,0,1,-1,-1],[5,29,2294,22,0,4,1,-1,-1],[5,29,2294,6,3,2,2,-1,-1],[5,29,2294,17,21,0,2,-1,-1],[5,30,2299,14,7,0,1,-1,-1],[5,30,2299,21,23,1,1,-1,-1],[5,30,2299,12,13,2,1,-1,-1],[5,30,2299,24,17,3,1,-1,-1],[5,30,2300,18,15,0,3,-1,-1],[5,30,2300,0,8,1,1,-1,-1],[5,30,2300,10,22,0,2,-1,-1],[5,30,2300,3,11,1,0,-1,-1],[5,30,2300,27,6,0,3,-1,-1],[5,31,2306,13,22,1,1,-1,-1],[5,31,2307,23,3,2,0,-1,-1],[5,31,2307,15,14,1,0,-1,-1],[5,31,2307,11,12,2,0,-1,-1],[5,31,2308,17,18,1,1,-1,-1],[5,31,2308,6,0,6,0,-1,-1],[5,31,2308,27,21,3,0,-1,-1],[5,31,2308,7,24,0,5,-1,-1],[5,31,2310,8,10,1,3,-1,-1],[5,32,2313,12,17,3,1,-1,-1],[5,32,2314,18,27,1,2,-1,-1],[5,32,2314,14,13,2,1,-1,-1],[5,32,2314,22,23,1,1,-1,-1],[5,32,2314,10,6,1,2,-1,-1],[5,32,2315,3,8,0,0,-1,-1],[5,32,2315,24,15,2,1,-1,-1],[5,32,2316,21,11,2,0,-1,-1],[5,32,2316,0,7,1,2,-1,-1],[5,33,2321,23,13,2,1,-1,-1],[5,33,2321,18,21,3,3,-1,-1],[5,33,2321,6,24,1,1,-1,-1],[5,33,2321,8,22,2,1,-1,-1],[5,33,2321,15,3,1,1,-1,-1],[5,33,2322,11,0,0,1,-1,-1],[5,33,2322,17,10,2,2,-1,-1],[5,33,2322,27,14,1,2,-1,-1],[5,33,2322,7,12,1,2,-1,-1],[5,34,2327,21,15,1,1,-1,-1],[5,34,2327,13,8,2,1,-1,-1],[5,34,2328,10,11,4,0,-1,-1],[5,34,2328,24,27,2,0,-1,-1],[5,34,2328,22,6,1,1,-1,-1],[5,34,2328,12,18,3,0,-1,-1],[5,34,2328,0,17,0,3,-1,-1],[5,34,2328,3,7,4,1,-1,-1],[5,34,2328,14,23,1,2,-1,-1],[6,1,2411,8,24,0,2,-1,-1],[6,1,2412,18,15,0,2,-1,-1],[6,1,2412,3,0,3,1,-1,-1],[6,1,2413,13,23,3,0,-1,-1],[6,1,2413,22,25,3,0,-1,-1],[6,1,2413,17,2,2,1,-1,-1],[6,1,2414,10,11,1,1,-1,-1],[6,1,2414,12,27,3,0,-1,-1],[6,2,2418,0,8,0,2,-1,-1],[6,2,2419,25,13,0,1,-1,-1],[6,2,2419,27,10,3,2,-1,-1],[6,2,2419,11,6,0,1,-1,-1],[6,2,2420,21,18,1,1,-1,-1],[6,2,2420,2,22,0,3,-1,-1],[6,2,2420,23,17,0,1,-1,-1],[6,2,2420,24,3,6,0,-1,-1],[6,2,2421,15,12,0,2,-1,-1],[6,3,2426,17,27,2,0,-1,-1],[6,3,2426,18,24,1,4,-1,-1],[6,3,2426,3,21,3,3,-1,-1],[6,3,2426,6,25,3,0,-1,-1],[6,3,2427,13,15,0,0,-1,-1],[6,3,2427,12,8,4,0,-1,-1],[6,3,2427,22,0,2,2,-1,-1],[6,3,2428,11,2,2,2,-1,-1],[6,4,2432,15,17,2,0,-1,-1],[6,4,2433,8,18,0,2,-1,-1],[6,4,2433,0,13,0,1,-1,-1],[6,4,2433,27,3,1,1,-1,-1],[6,4,2433,24,12,1,2,-1,-1],[6,4,2434,25,10,2,2,-1,-1],[6,4,2434,2,6,1,2,-1,-1],[6,4,2434,23,11,0,0,-1,-1],[6,4,2434,21,22,2,2,-1,-1],[6,3,2440,10,23,0,1,-1,-1],[6,5,2446,2,25,1,0,-1,-1],[6,5,2446,6,23,1,1,-1,-1],[6,5,2447,17,21,3,1,-1,-1],[6,5,2447,10,0,3,1,-1,-1],[6,5,2447,12,18,1,0,-1,-1],[6,5,2447,13,24,1,2,-1,-1],[6,5,2448,11,27,0,2,-1,-1],[6,5,2448,3,8,0,2,-1,-1],[6,5,2448,22,15,0,1,-1,-1],[6,6,2453,21,12,0,3,-1,-1],[6,6,2454,23,2,2,1,-1,-1],[6,6,2454,18,3,1,2,-1,-1],[6,6,2454,0,6,0,3,-1,-1],[6,6,2454,27,22,1,1,-1,-1],[6,6,2455,25,11,0,0,-1,-1],[6,6,2455,15,10,2,0,-1,-1],[6,6,2455,8,13,1,1,-1,-1],[6,6,2456,24,17,3,0,-1,-1],[6,1,2457,6,21,1,1,-1,-1],[6,7,2460,6,15,2,1,-1,-1],[6,7,2461,17,8,2,1,-1,-1],[6,7,2461,23,25,1,2,-1,-1],[6,7,2461,11,0,3,0,-1,-1],[6,7,2461,10,24,0,1,-1,-1],[6,7,2462,2,27,2,0,-1,-1],[6,7,2462,22,18,0,1,-1,-1],[6,7,2462,13,21,0,0,-1,-1],[6,7,2463,3,12,0,4,-1,-1],[6,8,2467,8,10,2,2,-1,-1],[6,8,2468,15,11,2,0,-1,-1],[6,8,2468,18,17,3,2,-1,-1],[6,8,2468,0,2,1,3,-1,-1],[6,8,2468,27,23,2,1,-1,-1],[6,8,2469,3,13,1,1,-1,-1],[6,8,2469,21,25,3,0,-1,-1],[6,8,2469,24,22,1,1,-1,-1],[6,8,2469,12,6,0,0,-1,-1],[6,9,2488,2,15,0,4,-1,-1],[6,9,2489,23,0,2,0,-1,-1],[6,9,2489,11,21,1,2,-1,-1],[6,9,2489,6,3,5,0,-1,-1],[6,9,2490,10,18,1,1,-1,-1],[6,9,2490,13,27,2,0,-1,-1],[6,9,2490,25,24,0,3,-1,-1],[6,9,2490,22,8,4,0,-1,-1],[6,9,2491,17,12,1,2,-1,-1],[6,10,2495,24,2,2,0,-1,-1],[6,10,2496,18,13,0,1,-1,-1],[6,10,2496,8,11,3,5,-1,-1],[6,10,2496,21,10,0,4,-1,-1],[6,10,2496,27,6,0,3,-1,-1],[6,10,2497,0,25,2,2,-1,-1],[6,10,2497,3,17,0,2,-1,-1],[6,10,2497,12,22,2,1,-1,-1],[6,10,2498,15,23,1,0,-1,-1],[6,11,2502,10,3,4,3,-1,-1],[6,11,2503,2,21,1,1,-1,-1],[6,11,2503,25,27,0,1,-1,-1],[6,11,2503,23,24,1,2,-1,-1],[6,11,2504,0,15,1,1,-1,-1],[6,11,2504,11,18,1,1,-1,-1],[6,11,2504,13,12,0,1,-1,-1],[6,11,2504,22,17,2,1,-1,-1],[6,11,2504,6,8,2,2,-1,-1],[6,12,2523,27,0,4,0,-1,-1],[6,12,2524,8,2,0,2,-1,-1],[6,12,2524,17,13,2,2,-1,-1],[6,12,2524,18,6,1,2,-1,-1],[6,12,2524,15,25,0,1,-1,-1],[6,12,2525,21,23,1,1,-1,-1],[6,12,2525,24,11,4,0,-1,-1],[6,12,2525,12,10,1,0,-1,-1],[6,12,2526,3,22,0,4,-1,-1],[6,13,2530,6,24,1,1,-1,-1],[6,13,2531,23,8,1,0,-1,-1],[6,13,2531,0,21,1,2,-1,-1],[6,13,2531,13,22,1,2,-1,-1],[6,13,2532,10,17,3,3,-1,-1],[6,13,2532,2,18,1,0,-1,-1],[6,13,2532,11,3,3,1,-1,-1],[6,13,2532,25,12,0,2,-1,-1],[6,13,2533,27,15,0,0,-1,-1],[6,14,2538,8,15,1,1,-1,-1],[6,14,2538,21,27,0,1,-1,-1],[6,14,2538,24,0,6,0,-1,-1],[6,14,2539,13,10,4,0,-1,-1],[6,14,2539,17,6,0,4,-1,-1],[6,14,2539,3,2,1,0,-1,-1],[6,14,2540,18,25,3,1,-1,-1],[6,14,2540,22,23,1,0,-1,-1],[6,14,2540,12,11,3,1,-1,-1],[6,15,2544,10,22,1,0,-1,-1],[6,15,2545,15,21,2,2,-1,-1],[6,15,2545,11,17,0,0,-1,-1],[6,15,2546,0,18,2,2,-1,-1],[6,15,2546,25,8,1,2,-1,-1],[6,15,2546,23,3,0,0,-1,-1],[6,15,2547,2,12,0,3,-1,-1],[6,15,2547,6,13,1,0,-1,-1],[6,15,2548,27,24,1,4,-1,-1],[6,16,2552,13,11,2,3,-1,-1],[6,16,2552,10,2,4,1,-1,-1],[6,16,2553,8,27,0,0,-1,-1],[6,16,2553,3,15,2,2,-1,-1],[6,16,2553,22,6,2,2,-1,-1],[6,16,2553,24,21,4,0,-1,-1],[6,16,2554,12,0,2,0,-1,-1],[6,17,2558,15,24,1,1,-1,-1],[6,17,2558,27,18,2,1,-1,-1],[6,17,2559,25,3,3,1,-1,-1],[6,17,2559,6,10,3,1,-1,-1],[6,17,2559,11,22,3,3,-1,-1],[6,17,2559,0,17,0,2,-1,-1],[6,17,2560,21,8,3,1,-1,-1],[6,17,2560,23,12,0,1,-1,-1],[6,17,2560,2,13,1,0,-1,-1],[6,16,2567,18,23,3,3,-1,-1],[6,16,2567,17,25,1,0,-1,-1],[6,18,2572,24,8,3,0,-1,-1],[6,18,2573,15,18,2,1,-1,-1],[6,18,2573,0,3,0,1,-1,-1],[6,18,2573,2,17,2,1,-1,-1],[6,18,2573,21,6,0,2,-1,-1],[6,18,2574,23,13,0,1,-1,-1],[6,18,2574,25,22,0,1,-1,-1],[6,18,2574,27,12,0,1,-1,-1],[6,18,2575,11,10,0,5,-1,-1],[6,19,2579,8,0,3,3,-1,-1],[6,19,2580,17,23,1,0,-1,-1],[6,19,2580,3,24,1,2,-1,-1],[6,19,2580,10,27,4,2,-1,-1],[6,19,2581,18,21,4,0,-1,-1],[6,19,2581,13,25,3,0,-1,-1],[6,19,2581,6,11,4,0,-1,-1],[6,19,2581,22,2,5,0,-1,-1],[6,19,2582,12,15,3,0,-1,-1],[6,20,2586,27,17,1,0,-1,-1],[6,20,2587,23,10,2,4,-1,-1],[6,20,2587,21,3,0,3,-1,-1],[6,20,2587,2,11,1,1,-1,-1],[6,20,2588,15,13,5,0,-1,-1],[6,20,2588,24,18,2,1,-1,-1],[6,20,2588,25,6,0,0,-1,-1],[6,20,2589,0,22,0,4,-1,-1],[6,20,2589,8,12,2,1,-1,-1],[6,21,2594,17,15,1,2,-1,-1],[6,21,2594,11,23,1,0,-1,-1],[6,21,2594,10,25,2,2,-1,-1],[6,21,2594,3,27,3,2,-1,-1],[6,21,2595,18,8,0,0,-1,-1],[6,21,2595,22,21,3,0,-1,-1],[6,21,2595,6,2,2,1,-1,-1],[6,21,2596,13,0,3,1,-1,-1],[6,21,2596,12,24,1,1,-1,-1],[6,22,2600,23,6,1,2,-1,-1],[6,22,2600,25,2,1,1,-1,-1],[6,22,2601,8,3,3,2,-1,-1],[6,22,2601,27,11,2,1,-1,-1],[6,22,2601,15,22,2,1,-1,-1],[6,22,2602,18,12,0,1,-1,-1],[6,22,2602,0,10,3,0,-1,-1],[6,22,2602,24,13,1,0,-1,-1],[6,22,2603,21,17,1,2,-1,-1],[6,23,2607,11,25,0,2,-1,-1],[6,23,2608,2,23,1,1,-1,-1],[6,23,2608,3,18,3,0,-1,-1],[6,23,2608,6,0,3,0,-1,-1],[6,23,2608,17,24,0,3,-1,-1],[6,23,2608,22,27,3,2,-1,-1],[6,23,2609,10,15,3,1,-1,-1],[6,23,2609,12,21,1,0,-1,-1],[6,23,2610,13,8,2,0,-1,-1],[6,24,2614,12,3,3,1,-1,-1],[6,24,2614,24,10,3,0,-1,-1],[6,24,2615,0,11,0,0,-1,-1],[6,24,2615,18,22,1,2,-1,-1],[6,24,2615,27,2,1,1,-1,-1],[6,24,2616,25,23,2,2,-1,-1],[6,24,2616,8,17,1,1,-1,-1],[6,24,2616,21,13,0,0,-1,-1],[6,24,2617,15,6,1,2,-1,-1],[6,25,2621,13,3,1,0,-1,-1],[6,25,2622,2,0,0,0,-1,-1],[6,25,2622,17,18,1,1,-1,-1],[6,25,2622,22,24,2,2,-1,-1],[6,25,2622,10,8,0,0,-1,-1],[6,25,2623,11,15,2,2,-1,-1],[6,25,2623,6,12,2,2,-1,-1],[6,25,2623,23,27,2,0,-1,-1],[6,25,2624,25,21,0,1,-1,-1],[6,26,2629,27,13,1,2,-1,-1],[6,26,2629,15,2,2,2,-1,-1],[6,26,2629,3,6,1,2,-1,-1],[6,26,2630,18,10,0,1,-1,-1],[6,26,2630,0,23,0,1,-1,-1],[6,26,2630,21,11,2,1,-1,-1],[6,26,2630,12,17,3,0,-1,-1],[6,27,2635,11,8,4,0,-1,-1],[6,27,2636,17,3,0,1,-1,-1],[6,27,2636,13,18,1,0,-1,-1],[6,27,2636,23,15,1,0,-1,-1],[6,27,2636,6,27,3,0,-1,-1],[6,27,2636,25,0,0,0,-1,-1],[6,27,2637,10,21,1,2,-1,-1],[6,27,2637,2,24,1,4,-1,-1],[6,27,2637,22,12,1,2,-1,-1],[6,28,2649,15,0,3,0,-1,-1],[6,28,2649,27,25,5,0,-1,-1],[6,28,2649,24,23,4,2,-1,-1],[6,28,2650,18,11,2,0,-1,-1],[6,28,2650,21,2,1,2,-1,-1],[6,28,2650,17,22,0,1,-1,-1],[6,28,2650,12,13,2,2,-1,-1],[6,28,2652,3,10,3,2,-1,-1],[6,28,2652,8,6,1,1,-1,-1],[6,29,2656,13,17,1,1,-1,-1],[6,29,2657,0,27,1,1,-1,-1],[6,29,2657,23,21,0,2,-1,-1],[6,29,2657,11,24,0,1,-1,-1],[6,29,2658,2,8,3,1,-1,-1],[6,29,2658,22,3,1,0,-1,-1],[6,29,2658,6,18,2,0,-1,-1],[6,29,2658,10,12,1,3,-1,-1],[6,29,2659,25,15,2,2,-1,-1],[6,30,2663,21,0,2,2,-1,-1],[6,30,2664,18,2,1,0,-1,-1],[6,30,2664,8,23,0,0,-1,-1],[6,30,2664,15,27,0,1,-1,-1],[6,30,2665,3,11,1,0,-1,-1],[6,30,2665,24,6,1,2,-1,-1],[6,30,2665,12,25,2,0,-1,-1],[6,30,2665,22,13,2,2,-1,-1],[6,30,2666,17,10,1,0,-1,-1],[6,26,2669,8,22,0,1,-1,-1],[6,31,2670,2,3,2,1,-1,-1],[6,31,2671,25,18,0,2,-1,-1],[6,31,2671,6,17,4,1,-1,-1],[6,31,2671,27,21,2,0,-1,-1],[6,31,2672,10,13,0,1,-1,-1],[6,31,2672,23,22,2,1,-1,-1],[6,31,2672,11,12,1,2,-1,-1],[6,31,2672,0,24,1,1,-1,-1],[6,31,2673,15,8,2,1,-1,-1],[6,26,2675,24,25,2,2,-1,-1],[6,32,2678,18,0,1,2,-1,-1],[6,32,2678,17,11,3,2,-1,-1],[6,32,2678,3,23,2,2,-1,-1],[6,32,2678,13,6,2,2,-1,-1],[6,32,2678,12,2,1,0,-1,-1],[6,32,2679,8,25,0,1,-1,-1],[6,32,2679,22,10,1,1,-1,-1],[6,32,2679,21,15,0,0,-1,-1],[6,32,2680,24,27,5,1,-1,-1],[6,33,2686,0,12,3,1,-1,-1],[6,33,2686,2,10,1,1,-1,-1],[6,33,2687,27,8,0,1,-1,-1],[6,33,2687,15,3,1,3,-1,-1],[6,33,2687,25,17,2,0,-1,-1],[6,33,2687,11,13,0,0,-1,-1],[6,33,2687,21,24,1,4,-1,-1],[6,33,2687,23,18,2,0,-1,-1],[6,33,2687,6,22,2,2,-1,-1],[6,34,2692,17,0,0,1,-1,-1],[6,34,2692,12,23,1,0,-1,-1],[6,34,2692,18,27,2,0,-1,-1],[6,34,2692,8,21,2,1,-1,-1],[6,34,2692,3,25,3,1,-1,-1],[6,34,2692,22,11,2,2,-1,-1],[6,34,2692,13,2,1,0,-1,-1],[6,34,2692,24,15,3,0,-1,-1],[6,34,2692,10,6,1,3,-1,-1],[7,1,2775,10,13,1,1,-1,-1],[7,1,2776,16,8,1,0,-1,-1],[7,1,2776,27,3,0,1,-1,-1],[7,1,2776,11,24,2,2,-1,-1],[7,1,2777,12,2,2,0,-1,-1],[7,1,2777,17,22,2,2,-1,-1],[7,1,2777,15,21,1,0,-1,-1],[7,1,2777,6,1,2,2,-1,-1],[7,1,2778,23,18,2,2,-1,-1],[7,2,2782,24,27,3,2,-1,-1],[7,2,2783,2,11,2,2,-1,-1],[7,2,2783,1,23,0,1,-1,-1],[7,2,2783,21,12,0,2,-1,-1],[7,2,2784,22,15,-1,-1,-1,-1],[7,2,2784,18,10,2,0,-1,-1],[7,2,2784,3,17,4,0,-1,-1],[7,2,2784,13,16,1,2,-1,-1],[7,2,2785,8,6,0,7,-1,-1],[7,3,2790,16,1,2,2,-1,-1],[7,3,2790,10,21,0,2,-1,-1],[7,3,2790,24,2,3,1,-1,-1],[7,3,2791,27,18,1,0,-1,-1],[7,3,2791,23,13,1,0,-1,-1],[7,3,2791,12,3,2,0,-1,-1],[7,3,2792,15,8,2,0,-1,-1],[7,4,2796,21,24,0,4,-1,-1],[7,4,2797,2,23,1,1,-1,-1],[7,4,2797,3,16,2,1,-1,-1],[7,4,2797,1,12,0,3,-1,-1],[7,4,2798,18,11,2,3,-1,-1],[7,4,2798,8,17,0,1,-1,-1],[7,4,2798,13,15,0,0,-1,-1],[7,4,2799,6,10,2,1,-1,-1],[7,4,2799,22,27,1,0,-1,-1],[7,5,2803,12,17,2,1,-1,-1],[7,5,2804,11,13,2,2,-1,-1],[7,5,2804,2,22,1,2,-1,-1],[7,5,2804,16,6,0,3,-1,-1],[7,5,2804,24,18,2,0,-1,-1],[7,5,2805,23,21,4,0,-1,-1],[7,5,2805,27,8,0,0,-1,-1],[7,5,2805,15,1,0,1,-1,-1],[7,5,2806,10,3,0,0,-1,-1],[7,3,2808,17,6,0,4,-1,-1],[7,3,2809,11,22,-1,-1,-1,-1],[7,6,2811,18,2,-1,-1,-1,-1],[7,6,2811,8,12,-1,-1,-1,-1],[7,6,2811,1,27,-1,-1,-1,-1],[7,6,2812,6,15,-1,-1,-1,-1],[7,6,2812,3,23,-1,-1,-1,-1],[7,6,2812,13,24,-1,-1,-1,-1],[7,6,2813,21,11,-1,-1,-1,-1],[7,6,2813,17,16,-1,-1,-1,-1],[7,6,2813,22,10,-1,-1,-1,-1],[7,7,2818,18,13,-1,-1,-1,-1],[7,7,2818,15,16,-1,-1,-1,-1],[7,7,2818,2,21,-1,-1,-1,-1],[7,7,2818,24,3,-1,-1,-1,-1],[7,7,2819,27,17,-1,-1,-1,-1],[7,7,2819,11,1,-1,-1,-1,-1],[7,7,2819,23,22,-1,-1,-1,-1],[7,7,2819,10,8,-1,-1,-1,-1],[7,7,2819,12,6,-1,-1,-1,-1],[7,8,2838,17,15,-1,-1,-1,-1],[7,8,2838,22,24,-1,-1,-1,-1],[7,8,2839,8,23,-1,-1,-1,-1],[7,8,2839,16,12,-1,-1,-1,-1],[7,8,2839,1,10,-1,-1,-1,-1],[7,8,2840,21,18,-1,-1,-1,-1],[7,8,2840,6,27,-1,-1,-1,-1],[7,8,2840,3,11,-1,-1,-1,-1],[7,8,2841,13,2,-1,-1,-1,-1],[7,9,2852,27,16,-1,-1,-1,-1],[7,9,2853,11,8,-1,-1,-1,-1],[7,9,2853,2,3,-1,-1,-1,-1],[7,9,2853,15,12,-1,-1,-1,-1],[7,9,2854,10,17,-1,-1,-1,-1],[7,9,2854,21,13,-1,-1,-1,-1],[7,9,2854,18,22,-1,-1,-1,-1],[7,9,2854,24,1,-1,-1,-1,-1],[7,9,2855,23,6,-1,-1,-1,-1],[7,10,2859,8,24,-1,-1,-1,-1],[7,10,2860,17,11,-1,-1,-1,-1],[7,10,2860,12,10,-1,-1,-1,-1],[7,10,2861,3,18,-1,-1,-1,-1],[7,10,2861,16,23,-1,-1,-1,-1],[7,10,2861,1,21,-1,-1,-1,-1],[7,10,2861,22,13,-1,-1,-1,-1],[7,10,2862,6,2,-1,-1,-1,-1],[7,10,2862,15,27,-1,-1,-1,-1],[7,11,2866,13,3,-1,-1,-1,-1],[7,11,2867,18,1,-1,-1,-1,-1],[7,11,2867,2,8,-1,-1,-1,-1],[7,11,2867,24,17,-1,-1,-1,-1],[7,11,2868,10,16,-1,-1,-1,-1],[7,11,2868,23,15,-1,-1,-1,-1],[7,11,2868,27,12,-1,-1,-1,-1],[7,11,2868,21,22,-1,-1,-1,-1],[7,11,2868,11,6,-1,-1,-1,-1],[7,12,2887,16,18,-1,-1,-1,-1],[7,12,2888,17,23,-1,-1,-1,-1],[7,12,2888,3,21,-1,-1,-1,-1],[7,12,2888,1,2,-1,-1,-1,-1],[7,12,2888,27,11,-1,-1,-1,-1],[7,12,2889,15,10,-1,-1,-1,-1],[7,12,2889,12,24,-1,-1,-1,-1],[7,12,2890,8,22,-1,-1,-1,-1],[7,12,2890,6,13,-1,-1,-1,-1],[7,13,2896,24,16,-1,-1,-1,-1],[7,13,2896,11,15,-1,-1,-1,-1],[7,13,2896,2,17,-1,-1,-1,-1],[7,13,2896,23,12,-1,-1,-1,-1],[7,13,2896,18,6,-1,-1,-1,-1],[7,13,2896,10,27,-1,-1,-1,-1],[7,13,2896,21,8,-1,-1,-1,-1],[7,13,2896,22,3,-1,-1,-1,-1],[7,13,2896,13,1,-1,-1,-1,-1],[7,14,2903,16,21,-1,-1,-1,-1],[7,14,2903,1,3,-1,-1,-1,-1],[7,14,2903,15,24,-1,-1,-1,-1],[7,14,2903,8,18,-1,-1,-1,-1],[7,14,2903,27,2,-1,-1,-1,-1],[7,14,2903,17,13,-1,-1,-1,-1],[7,14,2903,10,23,-1,-1,-1,-1],[7,14,2903,6,22,-1,-1,-1,-1],[7,14,2903,12,11,-1,-1,-1,-1],[7,15,2910,21,6,-1,-1,-1,-1],[7,15,2910,22,1,-1,-1,-1,-1],[7,15,2910,24,10,-1,-1,-1,-1],[7,15,2910,11,16,-1,-1,-1,-1],[7,15,2910,13,12,-1,-1,-1,-1],[7,15,2910,2,15,-1,-1,-1,-1],[7,15,2910,23,27,-1,-1,-1,-1],[7,15,2910,18,17,-1,-1,-1,-1],[7,15,2910,3,8,-1,-1,-1,-1],[7,16,2917,27,21,-1,-1,-1,-1],[7,16,2917,8,13,-1,-1,-1,-1],[7,16,2917,12,18,-1,-1,-1,-1],[7,16,2917,23,11,-1,-1,-1,-1],[7,16,2917,17,1,-1,-1,-1,-1],[7,16,2917,6,24,-1,-1,-1,-1],[7,16,2917,15,3,-1,-1,-1,-1],[7,16,2917,16,22,-1,-1,-1,-1],[7,16,2917,10,2,-1,-1,-1,-1],[7,17,2931,22,12,-1,-1,-1,-1],[7,17,2931,11,10,-1,-1,-1,-1],[7,17,2931,13,27,-1,-1,-1,-1],[7,17,2931,18,15,-1,-1,-1,-1],[7,17,2931,21,17,-1,-1,-1,-1],[7,17,2931,3,6,-1,-1,-1,-1],[7,17,2931,2,16,-1,-1,-1,-1],[7,17,2931,1,8,-1,-1,-1,-1],[7,17,2931,24,23,-1,-1,-1,-1],[7,18,2938,13,10,-1,-1,-1,-1],[7,18,2938,24,11,-1,-1,-1,-1],[7,18,2938,22,17,-1,-1,-1,-1],[7,18,2938,21,15,-1,-1,-1,-1],[7,18,2938,8,16,-1,-1,-1,-1],[7,18,2938,18,23,-1,-1,-1,-1],[7,18,2938,2,12,-1,-1,-1,-1],[7,18,2938,1,6,-1,-1,-1,-1],[7,18,2938,3,27,-1,-1,-1,-1],[7,19,2945,11,2,-1,-1,-1,-1],[7,19,2945,17,3,-1,-1,-1,-1],[7,19,2945,10,18,-1,-1,-1,-1],[7,19,2945,12,21,-1,-1,-1,-1],[7,19,2945,6,8,-1,-1,-1,-1],[7,19,2945,23,1,-1,-1,-1,-1],[7,19,2945,16,13,-1,-1,-1,-1],[7,19,2945,15,22,-1,-1,-1,-1],[7,19,2945,27,24,-1,-1,-1,-1],[7,20,2952,8,15,-1,-1,-1,-1],[7,20,2952,18,27,-1,-1,-1,-1],[7,20,2952,6,17,-1,-1,-1,-1],[7,20,2952,22,11,-1,-1,-1,-1],[7,20,2952,3,12,-1,-1,-1,-1],[7,20,2952,13,23,-1,-1,-1,-1],[7,20,2952,1,16,-1,-1,-1,-1],[7,20,2952,21,10,-1,-1,-1,-1],[7,20,2952,2,24,-1,-1,-1,-1],[7,21,2959,16,3,-1,-1,-1,-1],[7,21,2959,23,2,-1,-1,-1,-1],[7,21,2959,10,6,-1,-1,-1,-1],[7,21,2959,24,21,-1,-1,-1,-1],[7,21,2959,12,1,-1,-1,-1,-1],[7,21,2959,11,18,-1,-1,-1,-1],[7,21,2959,27,22,-1,-1,-1,-1],[7,21,2959,15,13,-1,-1,-1,-1],[7,21,2959,17,8,-1,-1,-1,-1],[7,22,2966,3,10,-1,-1,-1,-1],[7,22,2966,18,24,-1,-1,-1,-1],[7,22,2966,17,12,-1,-1,-1,-1],[7,22,2966,22,2,-1,-1,-1,-1],[7,22,2966,1,15,-1,-1,-1,-1],[7,22,2966,6,16,-1,-1,-1,-1],[7,22,2966,8,27,-1,-1,-1,-1],[7,22,2966,13,11,-1,-1,-1,-1],[7,22,2966,21,23,-1,-1,-1,-1],[7,23,2973,27,1,-1,-1,-1,-1],[7,23,2973,16,17,-1,-1,-1,-1],[7,23,2973,10,22,-1,-1,-1,-1],[7,23,2973,15,6,-1,-1,-1,-1],[7,23,2973,12,8,-1,-1,-1,-1],[7,23,2973,24,13,-1,-1,-1,-1],[7,23,2973,23,3,-1,-1,-1,-1],[7,23,2973,11,21,-1,-1,-1,-1],[7,23,2973,2,18,-1,-1,-1,-1],[7,24,2980,21,2,-1,-1,-1,-1],[7,24,2980,16,15,-1,-1,-1,-1],[7,24,2980,8,10,-1,-1,-1,-1],[7,24,2980,17,27,-1,-1,-1,-1],[7,24,2980,6,12,-1,-1,-1,-1],[7,24,2980,13,18,-1,-1,-1,-1],[7,24,2980,22,23,-1,-1,-1,-1],[7,24,2980,3,24,-1,-1,-1,-1],[7,24,2980,1,11,-1,-1,-1,-1],[7,25,2987,15,17,-1,-1,-1,-1],[7,25,2987,12,16,-1,-1,-1,-1],[7,25,2987,2,13,-1,-1,-1,-1],[7,25,2987,23,8,-1,-1,-1,-1],[7,25,2987,24,22,-1,-1,-1,-1],[7,25,2987,11,3,-1,-1,-1,-1],[7,25,2987,27,6,-1,-1,-1,-1],[7,25,2987,18,21,-1,-1,-1,-1],[7,25,2987,10,1,-1,-1,-1,-1],[7,26,2994,16,27,-1,-1,-1,-1],[7,26,2994,6,23,-1,-1,-1,-1],[7,26,2994,3,2,-1,-1,-1,-1],[7,26,2994,1,24,-1,-1,-1,-1],[7,26,2994,12,15,-1,-1,-1,-1],[7,26,2994,8,11,-1,-1,-1,-1],[7,26,2994,22,18,-1,-1,-1,-1],[7,26,2994,13,21,-1,-1,-1,-1],[7,26,2994,17,10,-1,-1,-1,-1],[7,27,3001,18,3,-1,-1,-1,-1],[7,27,3001,27,15,-1,-1,-1,-1],[7,27,3001,11,17,-1,-1,-1,-1],[7,27,3001,2,6,-1,-1,-1,-1],[7,27,3001,10,12,-1,-1,-1,-1],[7,27,3001,23,16,-1,-1,-1,-1],[7,27,3001,24,8,-1,-1,-1,-1],[7,27,3001,21,1,-1,-1,-1,-1],[7,27,3001,13,22,-1,-1,-1,-1],[7,28,3015,3,13,-1,-1,-1,-1],[7,28,3015,15,23,-1,-1,-1,-1],[7,28,3015,8,2,-1,-1,-1,-1],[7,28,3015,17,24,-1,-1,-1,-1],[7,28,3015,1,18,-1,-1,-1,-1],[7,28,3015,22,21,-1,-1,-1,-1],[7,28,3015,16,10,-1,-1,-1,-1],[7,28,3015,12,27,-1,-1,-1,-1],[7,28,3015,6,11,-1,-1,-1,-1],[7,29,3022,24,12,-1,-1,-1,-1],[7,29,3022,13,6,-1,-1,-1,-1],[7,29,3022,18,16,-1,-1,-1,-1],[7,29,3022,23,17,-1,-1,-1,-1],[7,29,3022,21,3,-1,-1,-1,-1],[7,29,3022,22,8,-1,-1,-1,-1],[7,29,3022,2,1,-1,-1,-1,-1],[7,29,3022,11,27,-1,-1,-1,-1],[7,29,3022,10,15,-1,-1,-1,-1],[7,30,3029,6,18,-1,-1,-1,-1],[7,30,3029,12,23,-1,-1,-1,-1],[7,30,3029,16,24,-1,-1,-1,-1],[7,30,3029,17,2,-1,-1,-1,-1],[7,30,3029,1,13,-1,-1,-1,-1],[7,30,3029,27,10,-1,-1,-1,-1],[7,30,3029,8,21,-1,-1,-1,-1],[7,30,3029,15,11,-1,-1,-1,-1],[7,30,3029,3,22,-1,-1,-1,-1],[7,31,3036,2,27,-1,-1,-1,-1],[7,31,3036,21,16,-1,-1,-1,-1],[7,31,3036,18,8,-1,-1,-1,-1],[7,31,3036,11,12,-1,-1,-1,-1],[7,31,3036,24,15,-1,-1,-1,-1],[7,31,3036,22,6,-1,-1,-1,-1],[7,31,3036,23,10,-1,-1,-1,-1],[7,31,3036,3,1,-1,-1,-1,-1],[7,31,3036,13,17,-1,-1,-1,-1],[7,32,3043,15,2,-1,-1,-1,-1],[7,32,3043,27,23,-1,-1,-1,-1],[7,32,3043,10,24,-1,-1,-1,-1],[7,32,3043,12,13,-1,-1,-1,-1],[7,32,3043,17,18,-1,-1,-1,-1],[7,32,3043,8,3,-1,-1,-1,-1],[7,32,3043,1,22,-1,-1,-1,-1],[7,32,3043,16,11,-1,-1,-1,-1],[7,32,3043,6,21,-1,-1,-1,-1],[7,33,3050,24,6,-1,-1,-1,-1],[7,33,3050,11,23,-1,-1,-1,-1],[7,33,3050,21,27,-1,-1,-1,-1],[7,33,3050,1,17,-1,-1,-1,-1],[7,33,3050,13,8,-1,-1,-1,-1],[7,33,3050,22,16,-1,-1,-1,-1],[7,33,3050,2,10,-1,-1,-1,-1],[7,33,3050,3,15,-1,-1,-1,-1],[7,33,3050,18,12,-1,-1,-1,-1],[7,34,3057,16,2,-1,-1,-1,-1],[7,34,3057,15,18,-1,-1,-1,-1],[7,34,3057,6,3,-1,-1,-1,-1],[7,34,3057,10,11,-1,-1,-1,-1],[7,34,3057,12,22,-1,-1,-1,-1],[7,34,3057,8,1,-1,-1,-1,-1],[7,34,3057,27,13,-1,-1,-1,-1],[7,34,3057,23,24,-1,-1,-1,-1],[7,34,3057,17,21,-1,-1,-1,-1]]};
+
+const ODDS_ATUAIS = window.ODDS_ATUAIS = { quando: "8 Ago 2026", jogos: [
+  ["Estoril Praia","Famalicão",3.35,3.70,2.19],
+  ["Marítimo","Casa Pia",2.87,3.60,2.48],
+  ["Vitória SC","Arouca",2.01,3.60,3.91],
+  ["Estrela da Amadora","Sporting CP",12.5,6.35,1.27],
+  ["FC Porto","Alverca",1.22,7.35,17.5],
+  ["Gil Vicente","Rio Ave",1.75,3.90,4.99],
+  ["Moreirense","SC Braga",5.50,3.93,1.69],
+  ["Benfica","Académico de Viseu",1.09,12.6,42],
+  ["Santa Clara","Nacional",2.19,3.40,3.60]
+]};
+// Horários (hora de Lisboa) e canais. EUA 2026/27: beIN SPORTS tem exclusivo de toda a liga.
+const CANAL_US = "beIN SPORTS";
+const HORARIOS_SEED = [
+  ["Estoril Praia","Famalicão","Sex 7 Ago","20h15","Sport TV 1"],
+  ["Marítimo","Casa Pia","Sáb 8 Ago","15h30","Sport TV 1"],
+  ["Vitória SC","Arouca","Sáb 8 Ago","18h00","Sport TV 2"],
+  ["Estrela da Amadora","Sporting CP","Sáb 8 Ago","20h30","Sport TV 1"],
+  ["FC Porto","Alverca","Dom 9 Ago","18h00","Sport TV 1"],
+  ["Benfica","Académico de Viseu","Dom 9 Ago","20h30","BTV"],
+  ["Gil Vicente","Rio Ave","Dom 9 Ago","20h30","Sport TV 2"],
+  ["Moreirense","SC Braga","Dom 9 Ago","20h30","Sport TV"],
+  ["Santa Clara","Nacional","Seg 10 Ago","20h15","Sport TV"],
+  ["Sporting CP","Vitória SC","Sex 14 Ago","20h15","Sport TV"],
+  ["Rio Ave","FC Porto","Sáb 15 Ago","","Sport TV"]
+];
+function horaET(hLisboa){
+  const m = String(hLisboa).match(/(\d{1,2})h(\d{2})/);
+  if (!m) return null;
+  const t = ((+m[1])*60 + (+m[2]) - 300 + 1440) % 1440;   // Lisboa -5h = Eastern (verão)
+  return Math.floor(t/60) + "h" + String(t%60).padStart(2,"0");
+}
+// Resultados já conhecidos que ainda não estão no openfootball.
+// Estatísticas por jogo. -1 = desconhecido; preenchem-se pela leitura ao vivo.
+const ESTATS_SEED = [
+  ["Estoril Praia","Famalicão",50,50,14,6,3,2,7,6,-1,-1,-1,-1,0.87,1.29]
+];
+const RESULTADOS_SEED = [
+  ["Estoril Praia","Famalicão",1,1],
+  ["Marítimo","Casa Pia",1,0],
+  ["Vitória SC","Arouca",0,1],
+  ["Estrela da Amadora","Sporting CP",2,2],
+  ["FC Porto","Alverca",2,0],
+  ["Benfica","Académico de Viseu",2,2],
+  ["Gil Vicente","Rio Ave",1,0],
+  ["Moreirense","SC Braga",2,2],
+  ["Santa Clara","Nacional",2,2],
+  ["Sporting CP","Vitória SC",3,2]
+];
+(function(){
+const OF_BASE = "https://raw.githubusercontent.com/openfootball/europe/master/portugal/";
+const OF_EPOCAS = [["2019-20_pt1.txt",2019],["2020-21_pt1.txt",2020],["2021-22_pt1.txt",2021],
+  ["2022-23_pt1.txt",2022],["2023-24_pt1.txt",2023],["2024-25_pt1.txt",2024],
+  ["2025-26_pt1.txt",2025],["2026-27_pt1.txt",2026]];
+
+const MAPA_OF = {
+  "porto":"FC Porto","sporting clube de portugal":"Sporting CP","sporting cp":"Sporting CP",
+  "sporting de portugal":"Sporting CP",
+  "sport lisboa e benfica":"Benfica","benfica":"Benfica",
+  "sporting clube de braga":"SC Braga","sporting de braga":"SC Braga","braga":"SC Braga",
+  "vitoria guimaraes":"Vitória SC","vitoria sc":"Vitória SC","guimaraes":"Vitória SC",
+  "famalicao":"Famalicão","gil vicente":"Gil Vicente","moreirense":"Moreirense",
+  "arouca":"Arouca","estoril praia":"Estoril Praia","estoril":"Estoril Praia","rio ave":"Rio Ave",
+  "santa clara":"Santa Clara","nacional":"Nacional",
+  "estrela da amadora":"Estrela da Amadora","estrela amadora":"Estrela da Amadora","estrela":"Estrela da Amadora",
+  "casa pia":"Casa Pia","alverca":"Alverca","maritimo":"Marítimo",
+  "academico de viseu":"Académico de Viseu","academico viseu":"Académico de Viseu",
+  "avs":"AVS","tondela":"Tondela","boavista":"Boavista","vizela":"Vizela",
+  "chaves":"Chaves","portimonense":"Portimonense","pacos de ferreira":"Paços de Ferreira",
+  "belenenses":"Belenenses SAD","farense":"Farense","vitoria setubal":"Vitória FC",
+  "aves":"Aves","desportivo das aves":"Aves","leixoes":"Leixões",
+};
+function limparOF(s){
+  return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase().replace(/[^a-z0-9 ]/g," ")
+    .replace(/\b(fc|cd|gd|cs|cf|sc|ac|sad|clube|desportivo|futebol)\b/g," ")
+    .replace(/\s+/g," ").trim();
+}
+function normOF(nome){
+  const k = limparOF(nome);
+  if (MAPA_OF[k]) return MAPA_OF[k];
+  for (const [v,c] of Object.entries(MAPA_OF))
+    if (k.includes(v) || v.includes(k)) return c;
+  return null;
+}
+
+// Jogos fora da liga (Europa, taças): entram no cálculo de descanso e carga, não no modelo.
+// [equipa, data ISO, competição, "casa"/"fora"]
+const CONTEXTO_SEED = [
+  ["Benfica","2026-07-23","Liga Europa (qual.)","fora"],
+  ["Benfica","2026-07-30","Liga Europa (qual.)","casa"],
+  ["Benfica","2026-08-06","Liga Europa (qual.)","casa"],
+  ["Benfica","2026-08-13","Liga Europa (qual.)","fora"],
+  ["FC Porto","2026-08-02","Supertaça","fora"],
+  ["FC Porto","2026-08-20","Liga Europa","fora"]
+];
+let CONTEXTO = [];
+function aplicarContexto(lista){
+  let mudou = false;
+  for (const c of (lista||[])){
+    const eq = normOF(c[0]);
+    const dt = new Date(c[1]);
+    if (!eq || isNaN(+dt)) continue;
+    if (!CONTEXTO.some(x=>x.eq===eq && +x.data===+dt)){
+      CONTEXTO.push({eq, data:dt, comp:c[2]||"outra competição", onde:c[3]||""});
+      mudou = true;
+    }
+  }
+  return mudou;
+}
+window.__aplicarContextoDC = function(lista){
+  if (aplicarContexto(lista)){ try { refazerDC(); } catch(e){} return true; }
+  return false;
+};
+
+const MESES_OF = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function parseOF(texto, anoInicio){
+  const jogos = [];
+  let jornada = 0, dataAtual = null;
+  for (let linha of texto.split("\n")){
+    linha = linha.replace(/\r/g,"");
+    const mJ = linha.match(/Matchday\s+(\d+)/);
+    if (mJ){ jornada = +mJ[1]; continue; }
+    const mD = linha.match(/^\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+([A-Z][a-z]{2})\s+(\d{1,2})(?:\s+(\d{4}))?\s*$/);
+    if (mD){
+      const mes = MESES_OF[mD[1]];
+      const ano = mD[3] ? +mD[3] : (mes >= 7 ? anoInicio : anoInicio + 1);
+      dataAtual = new Date(Date.UTC(ano, mes, +mD[2]));
+      continue;
+    }
+    const mG = linha.match(/^\s+(?:\d{1,2}[.:]\d{2}\s+)?(.+?)\s+v\s+(.+?)(?:\s+(\d+)-(\d+)(?:\s*\(\d+-\d+\))?)?\s*$/);
+    if (mG && dataAtual && jornada){
+      const casa = normOF(mG[1]), fora = normOF(mG[2]);
+      if (!casa || !fora) continue;
+      jogos.push({data:dataAtual, epoca:anoInicio, jornada, casa, fora,
+        gc: mG[3] !== undefined ? +mG[3] : null,
+        gf: mG[4] !== undefined ? +mG[4] : null});
+    }
+  }
+  return jogos;
+}
+
+function ajustarDC(jogos, dataRef, xi, iters, lr){
+  xi = xi || 0.0025; iters = iters || 600; lr = lr || 0.12;
+  const equipas = [...new Set(jogos.flatMap(j=>[j.casa,j.fora]))].sort();
+  const idx = {}; equipas.forEach((e,i)=>idx[e]=i);
+  const n = equipas.length;
+  const atq = new Float64Array(n), def = new Float64Array(n);
+  let mu = 0.1, gama = 0.25;
+  const w = jogos.map(j => Math.exp(-xi*Math.max(0,(dataRef-j.data)/864e5)));
+  for (let it = 0; it < iters; it++){
+    const gA = new Float64Array(n), gD = new Float64Array(n);
+    let gMu = 0, gGama = 0;
+    for (let k = 0; k < jogos.length; k++){
+      const j = jogos[k], ic = idx[j.casa], if_ = idx[j.fora];
+      const lc = Math.exp(mu + atq[ic] + def[if_] + gama);
+      const lf = Math.exp(mu + atq[if_] + def[ic]);
+      const yc = j.yc !== undefined ? j.yc : j.gc;
+      const yf = j.yf !== undefined ? j.yf : j.gf;
+      const rc = w[k]*(yc - lc), rf = w[k]*(yf - lf);
+      gA[ic] += rc; gD[if_] += rc; gA[if_] += rf; gD[ic] += rf;
+      gMu += rc + rf; gGama += rc;
+    }
+    const passo = lr / jogos.length * n;
+    for (let i = 0; i < n; i++){ atq[i] += passo*gA[i]; def[i] += passo*gD[i]; }
+    mu += lr/jogos.length*gMu; gama += lr/jogos.length*gGama;
+    let mA = 0, mD = 0;
+    for (let i = 0; i < n; i++){ mA += atq[i]/n; mD += def[i]/n; }
+    for (let i = 0; i < n; i++){ atq[i] -= mA; def[i] -= mD; }
+    mu += mA + mD;
+  }
+  let melhorRho = 0, melhorLL = -Infinity;
+  for (let rho = -0.15; rho <= 0.151; rho += 0.01){
+    let ll = 0;
+    for (let k = 0; k < jogos.length; k++){
+      const j = jogos[k], ic = idx[j.casa], if_ = idx[j.fora];
+      const lc = Math.exp(mu + atq[ic] + def[if_] + gama);
+      const lf = Math.exp(mu + atq[if_] + def[ic]);
+      ll += w[k]*Math.log(Math.max(1e-9, tauDC(j.gc, j.gf, lc, lf, rho)));
+    }
+    if (ll > melhorLL){ melhorLL = ll; melhorRho = rho; }
+  }
+  return {equipas, idx, atq, def, mu, gama, rho: melhorRho};
+}
+function tauDC(x,y,lc,lf,r){
+  if (x===0&&y===0) return 1-lc*lf*r;
+  if (x===0&&y===1) return 1+lc*r;
+  if (x===1&&y===0) return 1+lf*r;
+  if (x===1&&y===1) return 1-r;
+  return 1;
+}
+const PEN_DC = 0.35;
+function preverDC(m, casa, fora){
+  const a = e => m.idx[e]!==undefined ? m.atq[m.idx[e]] : -PEN_DC;
+  const d = e => m.idx[e]!==undefined ? m.def[m.idx[e]] : +PEN_DC;
+  const lc = Math.exp(m.mu + a(casa) + d(fora) + m.gama);
+  const lf = Math.exp(m.mu + a(fora) + d(casa));
+  const maxg = 10;
+  const pv = lam => { const v=[]; let p=Math.exp(-lam);
+    for (let g=0; g<=maxg; g++){ v.push(p); p*=lam/(g+1); } return v; };
+  const pc = pv(lc), pf = pv(lf);
+  let soma=0, pC=0, pE=0, pF=0, best="0-0", pBest=0;
+  const M=[];
+  for (let x=0;x<=maxg;x++){ M.push([]);
+    for (let y=0;y<=maxg;y++){ const p=pc[x]*pf[y]*tauDC(x,y,lc,lf,m.rho); M[x].push(p); soma+=p; } }
+  for (let x=0;x<=maxg;x++) for (let y=0;y<=maxg;y++){
+    const p=M[x][y]/soma;
+    if (x>y) pC+=p; else if (x===y) pE+=p; else pF+=p;
+    if (p>pBest){ pBest=p; best=x+"-"+y; }
+  }
+  return {pC,pE,pF,best,pBest};
+}
+
+function pintarMapaDC(m){
+  const caixa = document.getElementById("mdlMapa");
+  caixa.innerHTML = "";
+  const atuais = m.equipas.filter(e => Object.prototype.hasOwnProperty.call(SIGLAS, e));
+  const gm = {}, gs = {};
+  atuais.forEach(e=>{ gm[e]=Math.exp(m.mu+m.atq[m.idx[e]]); gs[e]=Math.exp(m.mu+m.def[m.idx[e]]); });
+  const xs = atuais.map(e=>gm[e]), ys = atuais.map(e=>gs[e]);
+  const x0=Math.min(...xs)-0.08, x1=Math.max(...xs)+0.08;
+  const y0=Math.min(...ys)-0.06, y1=Math.max(...ys)+0.06;
+  const xm=xs.reduce((a,b)=>a+b,0)/xs.length, ym=ys.reduce((a,b)=>a+b,0)/ys.length;
+  const X = v => 3 + 94*(v-x0)/(x1-x0);
+  const Y = v => 92 - 86*( (y1-v)/(y1-y0) );
+  const lv=document.createElement("div");
+  lv.style.cssText="position:absolute;top:0;bottom:0;width:1px;border-left:1px dashed var(--rule);left:"+X(xm)+"%";
+  caixa.appendChild(lv);
+  const lh=document.createElement("div");
+  lh.style.cssText="position:absolute;left:0;right:0;height:1px;border-top:1px dashed var(--rule);top:"+Y(ym)+"%";
+  caixa.appendChild(lh);
+  ["ATAQUE →","↑ DEFESA"].forEach((t,i)=>{
+    const s=document.createElement("span");
+    s.className="mono";
+    s.style.cssText="position:absolute;font-size:8px;letter-spacing:.12em;color:var(--ink-soft);"+
+      (i===0?"right:6px;bottom:4px;":"left:6px;top:4px;");
+    s.textContent = t;
+    caixa.appendChild(s);
+  });
+  atuais.forEach(e=>{
+    const el=document.createElement("div");
+    const bom = gm[e]>xm && gs[e]<ym, mau = gm[e]<xm && gs[e]>ym;
+    el.className="runner"+(bom?" eur":(mau?" des":""));
+    el.style.left=X(gm[e])+"%";
+    el.style.top=Y(gs[e])+"%";
+    el.textContent=SIGLAS[e];
+    el.title=e+" — marca "+gm[e].toFixed(2)+", sofre "+gs[e].toFixed(2)+" por jogo (ajustado)";
+    caixa.appendChild(el);
+  });
+}
+
+function probMercado(casa, fora){
+  for (const o of ODDS_ATUAIS.jogos){
+    if (normOF(o[0])===casa && normOF(o[1])===fora){
+      const inv = [1/o[2], 1/o[3], 1/o[4]];
+      const s = inv[0]+inv[1]+inv[2];
+      return {pC:inv[0]/s, pE:inv[1]/s, pF:inv[2]/s};
+    }
+  }
+  return null;
+}
+function mercadoHTML(j, p){
+  const mk = probMercado(j.casa, j.fora);
+  if (!mk) return '';
+  const seg2 = (w,cor,txt)=>'<div style="width:'+(w*100).toFixed(1)+'%;background:'+cor+
+    ';opacity:.45;color:#fff;font-size:8.5px;display:flex;align-items:center;justify-content:center;overflow:hidden" class="mono">'+
+    (w>0.12?txt:'')+'</div>';
+  const difs = [["casa",p.pC-mk.pC],["empate",p.pE-mk.pE],["fora",p.pF-mk.pF]];
+  difs.sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  const d = difs[0];
+  const divergencia = Math.abs(d[1]) >= 0.06
+    ? '<span style="color:var(--ocre)">modelo '+(d[1]>0?"acima":"abaixo")+' do mercado em '+
+      Math.round(Math.abs(d[1])*100)+' pp no '+d[0]+'</span>'
+    : 'modelo e mercado alinhados';
+  return '<div style="display:flex;height:12px;border:1px solid var(--rule);border-top:none">'+
+    seg2(mk.pC,"var(--europa)",Math.round(mk.pC*100)+"%")+
+    seg2(mk.pE,"var(--ink-soft)",Math.round(mk.pE*100)+"%")+
+    seg2(mk.pF,"var(--descida)",Math.round(mk.pF*100)+"%")+'</div>'+
+    '<div class="mono" style="font-size:9px;color:var(--ink-soft);margin-top:3px;display:flex;justify-content:space-between">'+
+    '<span>mercado (odds '+ODDS_ATUAIS.quando+', sem margem)</span>'+divergencia+'</div>';
+}
+
+function estatsHTML(j){
+  if (!j.st) return '<div class="mono" style="font-size:9px;color:var(--ink-soft);margin-top:3px">ficha estatística por preencher — as fontes (zerozero, Flashscore) dificultam a leitura automática; entra assim que os números aparecerem numa fonte aberta</div>';
+  const s = j.st;
+  const linha = (rotulo, a, b, dec) => {
+    if (a===null || b===null) return '';
+    const tot = (a+b) || 1;
+    const fa = Math.max(4, a/tot*100), fb = Math.max(4, b/tot*100);
+    const fmt = v => dec ? v.toFixed(2) : v;
+    return '<div style="display:grid;grid-template-columns:34px 1fr 86px 1fr 34px;gap:6px;align-items:center;padding:2px 0" class="mono">'+
+      '<span style="font-size:10px;text-align:right'+(a>b?';font-weight:600':'')+'">'+fmt(a)+'</span>'+
+      '<div style="height:7px;background:var(--paper-2);position:relative"><div style="position:absolute;right:0;top:0;bottom:0;background:var(--ink);width:'+fa+'%"></div></div>'+
+      '<span style="font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);text-align:center">'+rotulo+'</span>'+
+      '<div style="height:7px;background:var(--paper-2);position:relative"><div style="position:absolute;left:0;top:0;bottom:0;background:var(--ink);width:'+fb+'%"></div></div>'+
+      '<span style="font-size:10px'+(b>a?';font-weight:600':'')+'">'+fmt(b)+'</span></div>';
+  };
+  let corpo =
+    linha('xG', s.xg[0], s.xg[1], true) +
+    linha('posse %', s.pos[0], s.pos[1]) +
+    linha('remates', s.rem[0], s.rem[1]) +
+    linha('à baliza', s.rb[0], s.rb[1]) +
+    linha('cantos', s.cant[0], s.cant[1]) +
+    linha('amarelos', s.am[0], s.am[1]) +
+    linha('vermelhos', s.vm[0], s.vm[1]);
+  if (!corpo) return '';
+  return '<div style="margin-top:6px;border:1px solid var(--rule);padding:6px 8px;background:var(--paper-2)">'+corpo+'</div>';
+}
+function analisePreJogoHTML(m, j){
+  const a = e => m.idx[e]!==undefined ? m.atq[m.idx[e]] : -PEN_DC;
+  const d = e => m.idx[e]!==undefined ? m.def[m.idx[e]] : +PEN_DC;
+  const gm = e => Math.exp(m.mu + a(e));
+  const gs = e => Math.exp(m.mu + d(e));
+  const media = Math.exp(m.mu);
+
+  // histórico cronológico de cada equipa, uma vez só
+  const hist = eq => TODOS_DC.filter(x=>x.gc!==null && (x.casa===eq || x.fora===eq))
+    .sort((x,y)=>x.data-y.data)
+    .map(x=>({meu: x.casa===eq?x.gc:x.gf, dele: x.casa===eq?x.gf:x.gc, emCasa: x.casa===eq}));
+  const hC = hist(j.casa), hF = hist(j.fora);
+
+  const secH = t => '<div class="mono" style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:7px 0 3px;border-top:1px solid var(--rule);padding-top:5px">'+t+'</div>';
+  const duo = (rotulo, vc, vf, melhorMaior, sufixo) => {
+    const esc = Math.max(vc, vf, 0.01);
+    const forte = melhorMaior ? (vc>=vf?0:1) : (vc<=vf?0:1);
+    const fmt = x => (sufixo==="%") ? Math.round(x)+"%" : x.toFixed(2);
+    return '<div style="display:grid;grid-template-columns:44px 1fr 100px 1fr 44px;gap:6px;align-items:center;padding:2px 0" class="mono">'+
+      '<span style="font-size:10px;text-align:right'+(forte===0?';font-weight:600':'')+'">'+fmt(vc)+'</span>'+
+      '<div style="height:7px;background:var(--paper-2);position:relative"><div style="position:absolute;right:0;top:0;bottom:0;background:'+(forte===0?'var(--europa)':'var(--ink-soft)')+';width:'+Math.max(5,vc/esc*100)+'%"></div></div>'+
+      '<span style="font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);text-align:center">'+rotulo+'</span>'+
+      '<div style="height:7px;background:var(--paper-2);position:relative"><div style="position:absolute;left:0;top:0;bottom:0;background:'+(forte===1?'var(--europa)':'var(--ink-soft)')+';width:'+Math.max(5,vf/esc*100)+'%"></div></div>'+
+      '<span style="font-size:10px'+(forte===1?';font-weight:600':'')+'">'+fmt(vf)+'</span></div>';
+  };
+  const med = (arr, f) => arr.length ? arr.reduce((s,x)=>s+f(x),0)/arr.length : 0;
+  const pct = (arr, f) => arr.length ? arr.filter(f).length/arr.length*100 : 0;
+
+  // ritmo recente: últimos 10 jogos
+  const r10C = hC.slice(-10), r10F = hF.slice(-10);
+  const ppj = arr => med(arr, x=>x.meu>x.dele?3:(x.meu===x.dele?1:0));
+
+  // condição: equipa da casa nos seus jogos em casa; visitante nos seus jogos fora (últimos 15 de cada)
+  const casaEmCasa = hC.filter(x=>x.emCasa).slice(-15);
+  const foraFora   = hF.filter(x=>!x.emCasa).slice(-15);
+
+  // padrões: últimos 20 jogos
+  const p20C = hC.slice(-20), p20F = hF.slice(-20);
+
+  // sequências actuais
+  const serie = (arr, f, nome) => {
+    let n=0; for (let i=arr.length-1;i>=0;i--){ if (f(arr[i])) n++; else break; }
+    return n>=2 ? n+" "+nome : null;
+  };
+  const series = arr => [
+    serie(arr, x=>x.meu>x.dele, "vitórias seguidas"),
+    serie(arr, x=>x.meu>=x.dele, "sem perder"),
+    serie(arr, x=>x.meu<x.dele, "derrotas seguidas"),
+    serie(arr, x=>x.meu>0, "a marcar"),
+    serie(arr, x=>x.dele===0, "sem sofrer"),
+    serie(arr, x=>x.meu===0, "sem marcar"),
+  ].filter(Boolean).slice(0,2).join(" · ") || "sem série activa";
+
+  const forma5 = arr => arr.slice(-5).map(x=>x.meu>x.dele?"V":(x.meu===x.dele?"E":"D")).join("");
+  const chips = f => [...f].map(c=>'<span class="chip '+c+'" style="width:15px;height:15px;font-size:8px">'+c+'</span>').join("");
+
+  const h2h = TODOS_DC.filter(x=>x.gc!==null &&
+    ((x.casa===j.casa && x.fora===j.fora) || (x.casa===j.fora && x.fora===j.casa)))
+    .sort((x,y)=>y.data-x.data);
+  let vC=0, e=0, vF=0;
+  h2h.forEach(x=>{
+    const gEqCasa = x.casa===j.casa ? x.gc : x.gf, gEqFora = x.casa===j.casa ? x.gf : x.gc;
+    if (gEqCasa>gEqFora) vC++; else if (gEqCasa<gEqFora) vF++; else e++;
+  });
+  const ultimos = h2h.slice(0,3).map(x=>
+    '<span style="white-space:nowrap">'+x.data.getUTCFullYear()+": "+x.casa.split(" ")[0]+" "+x.gc+"-"+x.gf+" "+x.fora.split(" ")[0]+'</span>').join(" · ");
+
+  const lc = Math.exp(m.mu + a(j.casa) + d(j.fora) + m.gama);
+  const lf = Math.exp(m.mu + a(j.fora) + d(j.casa));
+  const maxg = 8, pv = lam => { const v=[]; let p=Math.exp(-lam);
+    for (let g=0; g<=maxg; g++){ v.push(p); p*=lam/(g+1); } return v; };
+  const pc = pv(lc), pf = pv(lf);
+  let soma=0, lista=[], o25=0, ambas=0;
+  for (let x=0;x<=maxg;x++) for (let y=0;y<=maxg;y++){
+    const p=pc[x]*pf[y]*tauDC(x,y,lc,lf,m.rho); soma+=p; lista.push([x,y,p]);
+    if (x+y>2) o25+=p; if (x>=1&&y>=1) ambas+=p;
+  }
+  lista.sort((q,w)=>w[2]-q[2]);
+  const top3 = lista.slice(0,3).map(t=>t[0]+"-"+t[1]+" ("+Math.round(t[2]/soma*100)+"%)").join(" · ");
+
+  return '<details style="margin-top:6px"><summary class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ocre);cursor:pointer">Análise pré-jogo ▾</summary>'+
+    '<div style="border:1px solid var(--rule);padding:8px;background:var(--paper-2);margin-top:5px">'+
+
+    '<div class="mono" style="font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:3px">Força ajustada ao adversário · média da liga '+media.toFixed(2)+' golos/90</div>'+
+    duo("ataque /90", gm(j.casa), gm(j.fora), true)+
+    duo("sofre /90", gs(j.casa), gs(j.fora), false)+
+
+    secH("Na condição do jogo · casa em casa, visitante fora (últimos 15)")+
+    duo("golos marcados", med(casaEmCasa,x=>x.meu), med(foraFora,x=>x.meu), true)+
+    duo("golos sofridos", med(casaEmCasa,x=>x.dele), med(foraFora,x=>x.dele), false)+
+    duo("pontos por jogo", ppj(casaEmCasa), ppj(foraFora), true)+
+
+    secH("Ritmo recente · últimos 10 jogos")+
+    duo("pontos por jogo", ppj(r10C), ppj(r10F), true)+
+    duo("golos marcados", med(r10C,x=>x.meu), med(r10F,x=>x.meu), true)+
+    duo("golos sofridos", med(r10C,x=>x.dele), med(r10F,x=>x.dele), false)+
+
+    secH("Padrões · últimos 20 jogos")+
+    duo("baliza a zero", pct(p20C,x=>x.dele===0), pct(p20F,x=>x.dele===0), true, "%")+
+    duo("jogos sem marcar", pct(p20C,x=>x.meu===0), pct(p20F,x=>x.meu===0), false, "%")+
+    duo("mais de 2,5 golos", pct(p20C,x=>x.meu+x.dele>2), pct(p20F,x=>x.meu+x.dele>2), true, "%")+
+    duo("ambas marcam", pct(p20C,x=>x.meu>0&&x.dele>0), pct(p20F,x=>x.meu>0&&x.dele>0), true, "%")+
+
+    '<div style="display:grid;grid-template-columns:1fr 100px 1fr;gap:6px;align-items:center;padding:4px 0;border-top:1px solid var(--rule);margin-top:5px" class="mono">'+
+    '<span style="text-align:right">'+chips(forma5(hC)||"·····")+'</span>'+
+    '<span style="font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);text-align:center">forma (5)</span>'+
+    '<span>'+chips(forma5(hF)||"·····")+'</span></div>'+
+    '<div class="mono" style="font-size:9px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px"><span>'+series(hC)+'</span><span style="text-align:right">'+series(hF)+'</span></div>'+
+
+    (h2h.length ?
+      '<div class="mono" style="font-size:9.5px;padding:4px 0;border-top:1px solid var(--rule);margin-top:5px">Histórico directo ('+h2h.length+'): '+vC+'V '+e+'E '+vF+'D para '+j.casa.split(" ")[0]+' · contexto, não entra no modelo<br><span style="color:var(--ink-soft)">'+ultimos+'</span></div>' : '')+
+
+    (function(){
+      // todos os jogos conhecidos de cada equipa: liga + outras competições
+      const agenda = eq => TODOS_DC.filter(x=>x.gc!==null && (x.casa===eq||x.fora===eq)).map(x=>({data:x.data, comp:"Liga", onde:x.casa===eq?"casa":"fora"}))
+        .concat(CONTEXTO.filter(c=>c.eq===eq).map(c=>({data:c.data, comp:c.comp, onde:c.onde})))
+        .sort((x,y)=>x.data-y.data);
+      const ref = +j.data;
+      const linhaEq = eq => {
+        const ag = agenda(eq);
+        const antes = ag.filter(x=>+x.data < ref);
+        const ult = antes[antes.length-1];
+        const descanso = ult ? Math.round((ref - +ult.data)/864e5) : null;
+        const carga14 = antes.filter(x=>ref - +x.data <= 14*864e5).length;
+        const prox = ag.find(x=>+x.data > ref && +x.data - ref <= 5*864e5 && x.comp !== "Liga");
+        let txt = (descanso!==null ? descanso+" dias de descanso" : "sem registo") +
+          " · "+carga14+" jogos em 14 dias";
+        if (ult && ult.comp !== "Liga") txt += " · veio de "+ult.comp+(ult.onde==="fora"?" (fora)":"");
+        if (prox) txt += ' · <span style="color:var(--descida)">joga '+prox.comp+' já a seguir — risco de gestão de plantel</span>';
+        return txt;
+      };
+      const alerta = (CONTEXTO.some(c=>c.eq===j.casa) || CONTEXTO.some(c=>c.eq===j.fora)) ? "" :
+        ' <span style="color:var(--ink-soft)">(sem jogos europeus registados para estas equipas)</span>';
+      return secH("Contexto de calendário · liga + outras competições"+alerta)+
+        '<div class="mono" style="font-size:9px;line-height:1.7">'+
+        '<b>'+j.casa+':</b> '+linhaEq(j.casa)+'<br>'+
+        '<b>'+j.fora+':</b> '+linhaEq(j.fora)+'</div>';
+    })()+
+
+    secH("Previsão do modelo")+
+    '<div class="mono" style="font-size:9.5px">'+
+    'Golos esperados: '+lc.toFixed(2)+' — '+lf.toFixed(2)+'<br>'+
+    'Resultados mais prováveis: '+top3+'<br>'+
+    'Mais de 2,5 golos: '+Math.round(o25/soma*100)+'% · Ambas marcam: '+Math.round(ambas/soma*100)+'%</div>'+
+    '</div></details>';
+}
+function pintarPrevDC(mPre, jornadaJogos){
+  const box = document.getElementById("mdlPrev");
+  if (!jornadaJogos.length){
+    box.innerHTML='<p class="empty-note">Sem jogos por disputar nos ficheiros de dados.</p>';
+    return;
+  }
+  box.innerHTML = jornadaJogos.map(j=>{
+    const p = preverDC(mPre, j.casa, j.fora);   // sempre probabilidades PRÉ-jogo
+    const disputado = j.gc !== null;
+    const seg = (w,cor,txt)=>'<div style="width:'+(w*100).toFixed(1)+'%;background:'+cor+
+      ';color:#fff;font-size:9.5px;display:flex;align-items:center;justify-content:center;overflow:hidden'+
+      (disputado?';opacity:.55':'')+'" class="mono">'+(w>0.12?txt:'')+'</div>';
+    let direita, avaliacao = '', ficha = '';
+    if (disputado){
+      direita = '<span class="score" style="font-size:13px;padding:2px 8px">'+j.gc+'-'+j.gf+'</span>';
+      const real = j.gc>j.gf?0:(j.gc===j.gf?1:2);
+      const probReal = [p.pC,p.pE,p.pF][real];
+      const modal = [p.pC,p.pE,p.pF].indexOf(Math.max(p.pC,p.pE,p.pF));
+      avaliacao = '<div class="mono" style="font-size:9px;color:var(--ink-soft);margin-top:3px">'+
+        'antes do jogo o modelo dava '+Math.round(probReal*100)+'% ao que aconteceu · '+
+        (modal===real
+          ? '<span style="color:var(--europa)">desfecho mais provável confirmado</span>'
+          : 'o mais provável era outro — o futebol tem '+Math.round((1-Math.max(p.pC,p.pE,p.pF))*100)+'% de espaço para isto')+
+        '</div>';
+      ficha = estatsHTML(j);
+    } else {
+      direita = '<span class="mono" style="font-size:10px;color:var(--ink-soft)">'+p.best+' ('+Math.round(p.pBest*100)+'%)</span>';
+    }
+    return '<div style="padding:8px 0;border-bottom:1px solid var(--rule)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:4px">'+
+      '<span>'+j.casa+' <span class="mono" style="font-size:9px;color:var(--ink-soft)">casa</span></span>'+
+      direita+
+      '<span><span class="mono" style="font-size:9px;color:var(--ink-soft)">fora</span> '+j.fora+'</span></div>'+
+      '<div style="display:flex;height:18px;border:1px solid var(--ink)">'+
+      seg(p.pC,"var(--europa)",Math.round(p.pC*100)+"%")+
+      seg(p.pE,"var(--ink-soft)",Math.round(p.pE*100)+"%")+
+      seg(p.pF,"var(--descida)",Math.round(p.pF*100)+"%")+
+      '</div>'+(disputado?avaliacao+ficha:mercadoHTML(j, p)+analisePreJogoHTML(mPre, j))+'</div>';
+  }).join("");
+}
+
+
+
+/* ---- API-Football (api-sports.io) — activa quando o utilizador cola a chave ---- */
+const APIF = { chave:"", ok:false, plano:"", resto:null, fixtures:{} };
+const APIF_ALIAS = {"benfica":"Benfica","fc porto":"FC Porto","porto":"FC Porto","sporting cp":"Sporting CP",
+"sporting":"Sporting CP","sc braga":"SC Braga","braga":"SC Braga","vitoria guimaraes":"Vitória SC",
+"vitoria sc":"Vitória SC","estrela amadora":"Estrela da Amadora","estrela":"Estrela da Amadora",
+"academico viseu":"Académico de Viseu","academico de viseu":"Académico de Viseu","estoril":"Estoril Praia",
+"estoril praia":"Estoril Praia","santa clara":"Santa Clara","casa pia":"Casa Pia","gil vicente":"Gil Vicente",
+"moreirense":"Moreirense","rio ave":"Rio Ave","famalicao":"Famalicão","arouca":"Arouca","nacional":"Nacional",
+"maritimo":"Marítimo","alverca":"Alverca"};
+function apifNome(n){
+  const c = String(n||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  return APIF_ALIAS[c] || normOF(n) || n;
+}
+async function apifPedir(caminho){
+  const r = await fetch("https://v3.football.api-sports.io/"+caminho, {headers:{"x-apisports-key":APIF.chave}});
+  APIF.resto = r.headers.get("x-ratelimit-requests-remaining");
+  const j = await r.json();
+  if (j.errors && Object.keys(j.errors).length) throw new Error(Object.values(j.errors).join(" "));
+  return j;
+}
+function apifBadge(txt, cor){
+  const el = document.getElementById("apifEstado");
+  if (el){ el.textContent = txt; el.style.color = cor || "var(--ink-soft)"; }
+}
+async function apifLigar(){
+  const campo = document.getElementById("apifChave");
+  APIF.chave = (campo ? campo.value : "").trim();
+  if (!APIF.chave){ apifBadge("cole a chave primeiro", "var(--descida)"); return; }
+  apifBadge("a testar a chave…");
+  try {
+    const st = await apifPedir("status");
+    APIF.plano = (st.response && st.response.subscription && st.response.subscription.plan) || "?";
+    const fx = await apifPedir("fixtures?league=94&season=2026&last=3");
+    if (!fx.results){
+      APIF.ok = false;
+      apifBadge("chave válida, mas o plano "+APIF.plano+" não cobre a época 2026/27 — a usar openfootball", "var(--descida)");
+      return;
+    }
+    APIF.ok = true;
+    await apifResultados();
+  } catch(e){
+    APIF.ok = false;
+    const rede = /fetch|network|load/i.test(e.message);
+    apifBadge(rede
+      ? "sem acesso à API a partir deste ambiente — descarregue o ficheiro e abra-o directamente no browser"
+      : "falha: "+e.message, "var(--descida)");
+  }
+}
+async function apifResultados(){
+  const fx = await apifPedir("fixtures?league=94&season=2026");
+  const lista = [];
+  for (const f of (fx.response||[])){
+    const est = f.fixture && f.fixture.status && f.fixture.status.short;
+    const mJor = /(\d+)/.exec((f.league && f.league.round) || "");
+    const casa = apifNome(f.teams.home.name), fora = apifNome(f.teams.away.name);
+    APIF.fixtures[casa+"|"+fora] = f.fixture.id;
+    if (["FT","AET","PEN"].includes(est))
+      lista.push(["", casa, fora, f.goals.home+"-"+f.goals.away]);
+  }
+  if (lista.length && window.__aplicarResultadosDC) window.__aplicarResultadosDC(lista);
+  apifBadge("API ligada · plano "+APIF.plano+" · "+(APIF.resto??"?")+" pedidos restantes hoje", "var(--subida)");
+}
+async function apifDetalheBenfica(adversario, onde, botao){
+  if (!APIF.ok){ if(botao) botao.textContent="ligue a API primeiro"; return; }
+  const casa = onde==="casa" ? FOCO : adversario, fora = onde==="casa" ? adversario : FOCO;
+  const id = APIF.fixtures[apifNome(casa)+"|"+apifNome(fora)];
+  if (!id){ if(botao) botao.textContent="jogo não encontrado na API"; return; }
+  if (botao) botao.textContent = "a obter (3 pedidos)…";
+  try {
+    const ev = await apifPedir("fixtures/events?fixture="+id);
+    const li = await apifPedir("fixtures/lineups?fixture="+id);
+    const pl = await apifPedir("fixtures/players?fixture="+id);
+    const f = FOCO_JOGOS.find(x=>x.adversario.split(" ")[0]===adversario.split(" ")[0]);
+    if (!f) return;
+    f.marcadores = (ev.response||[]).filter(e=>e.type==="Goal" && e.team && apifNome(e.team.name)===FOCO)
+      .map(e=>[e.player.name, (e.time.elapsed||"")+"'"+(e.detail==="Penalty"?" (g.p.)":"")]);
+    const meu = (li.response||[]).find(x=>apifNome(x.team.name)===FOCO);
+    if (meu) f.onze = (meu.startXI||[]).map(x=>x.player.name);
+    f.supl = (ev.response||[]).filter(e=>e.type==="subst" && apifNome(e.team.name)===FOCO)
+      .map(e=>e.assist && e.assist.name).filter(Boolean);
+    const eqPl = (pl.response||[]).find(x=>apifNome(x.team.name)===FOCO);
+    if (eqPl) f.jogadores = (eqPl.players||[]).map(p=>({
+      nome:p.player.name, min:(p.statistics[0].games.minutes)||0,
+      nota:parseFloat(p.statistics[0].games.rating)||null }));
+    f.nota = ((f.nota||"").replace(/ · detalhe via API$/,"")) + " · detalhe via API";
+    pintarFoco();
+  } catch(e){ if(botao) botao.textContent = "falhou: "+e.message; }
+}
+window.__apifLigar = apifLigar;
+window.__apifDetalhe = apifDetalheBenfica;
+
+/* ---- equipa em foco: Benfica ---- */
+const FOCO = "Benfica";
+const FOCO_EXTRA = []; // linha gerida por atualizar_placar.py — não editar à mão
+const FOCO_JOGOS = [
+  { comp:"Liga Europa (qual.)", jornada:null, adversario:"St. Gallen", onde:"casa", res:"5-0",
+    marcadores:[], onze:[], supl:[], nota:"2.ª mão da eliminatória" },
+  { comp:"Liga Europa (qual.)", jornada:null, adversario:"Hearts", onde:"casa", res:"",
+    marcadores:[], onze:[], supl:[], nota:"1.ª mão, 6 Ago — resultado por confirmar na leitura" },
+  { comp:"Liga", jornada:3, adversario:"Moreirense", onde:"fora", res:"0-4",
+    marcadores:[["Pavlidis","45+4' (g.p.)"],["Schjelderup","55'"],["Prestianni","59'"],["Aursnes","72'"]],
+    onze:[], supl:["El Karouani"],
+    nota:"jogo em atraso · 1.ª mexida no onze da era Marco Silva: Schjelderup por Sudakov, Prestianni para dentro · estreia de El Karouani" },
+  { comp:"Liga", jornada:1, adversario:"Académico de Viseu", onde:"casa", res:"2-2",
+    marcadores:[["Pavlidis","10'"],["Prestianni","58'"]],
+    onze:["Samuel Soares","Bah","Tomás Araújo","Lenglet","Dahl","Barrenechea","Barreiro","Prestianni","Sudakov","Rafa Silva","Pavlidis"],
+    supl:[], nota:"à porta fechada" }
+];
+window.__aplicarFocoDC = function(lista){
+  let mudou = false;
+  for (const f of (lista||[])){
+    if (!f || !f.jogo) continue;
+    const alvoIdx = FOCO_JOGOS.findIndex(x =>
+      x.adversario.toLowerCase().split(" ")[0] === String(f.jogo[0]).toLowerCase().split(" ")[0] &&
+      (x.res === "" || x.res === String(f.jogo[2]||"")));
+    const novo = {
+      comp: f.jogo[3] || "Liga", jornada: f.jornada || null,
+      adversario: f.jogo[0], onde: f.jogo[1] || "", res: f.jogo[2] || "",
+      marcadores: Array.isArray(f.marcadores) ? f.marcadores : [],
+      onze: Array.isArray(f.onze) ? f.onze : [],
+      supl: Array.isArray(f.suplentes_usados) ? f.suplentes_usados : [],
+      jogadores: Array.isArray(f.jogadores) ? f.jogadores : null, nota: ""
+    };
+    if (alvoIdx >= 0){
+      const alvo = FOCO_JOGOS[alvoIdx];
+      for (const k of ["comp","onde"]) if (novo[k]) alvo[k] = novo[k];
+      if (novo.jornada) alvo.jornada = novo.jornada;
+      if (novo.res) alvo.res = novo.res;
+      for (const k of ["marcadores","onze","supl"])
+        if (novo[k] && novo[k].length) alvo[k] = novo[k];
+      if (novo.jogadores && novo.jogadores.length) alvo.jogadores = novo.jogadores;
+    } else FOCO_JOGOS.push(novo);
+    mudou = true;
+  }
+  if (mudou) pintarFoco();
+  return mudou;
+};
+function pintarFoco(){
+  const box = document.getElementById("focoBox");
+  if (!box) return;
+  // completar automaticamente com jogos da liga que ainda não têm cartão
+  TODOS_DC.filter(x=>x.epoca>=2026 && x.gc!==null && (x.casa===FOCO || x.fora===FOCO)).forEach(x=>{
+    const adv = x.casa===FOCO ? x.fora : x.casa;
+    const res = x.casa===FOCO ? x.gc+"-"+x.gf : x.gf+"-"+x.gc;
+    const existe = FOCO_JOGOS.some(f=>f.comp==="Liga" && f.adversario.split(" ")[0]===adv.split(" ")[0]
+      && (f.jornada===x.jornada || f.jornada===null));
+    if (!existe) FOCO_JOGOS.push({comp:"Liga", jornada:x.jornada, adversario:adv,
+      onde: x.casa===FOCO?"casa":"fora", res, marcadores:[], onze:[], supl:[],
+      nota:"detalhe (onze, marcadores) entra pela leitura ao vivo"});
+    else {
+      const f = FOCO_JOGOS.find(f=>f.comp==="Liga" && f.adversario.split(" ")[0]===adv.split(" ")[0]);
+      if (f && !f.res) f.res = res;
+      if (f && f.jornada===null) f.jornada = x.jornada;
+    }
+  });
+  FOCO_JOGOS.sort((a,b)=>(a.jornada||0)-(b.jornada||0));
+  document.getElementById("focoHead").textContent = FOCO_JOGOS.length + " jogos registados · todas as competições";
+
+  // agregado por jogador a partir do que está registado
+  const jog = {};
+  const extra = {};
+  const toca = (n, campo) => {
+    if (!n) return;
+    n = String(n).trim();
+    jog[n] = jog[n] || {t:0, s:0, g:0};
+    jog[n][campo]++;
+  };
+  FOCO_JOGOS.forEach(x=>{
+    (x.onze||[]).forEach(n=>toca(n,"t"));
+    (x.supl||[]).forEach(n=>toca(n,"s"));
+    (x.marcadores||[]).forEach(m=>toca(m[0],"g"));
+    const temMarc = (x.marcadores||[]).length > 0;
+    (x.jogadores||[]).forEach(p=>{
+      extra[p.nome] = extra[p.nome] || {min:0, notas:[]};
+      extra[p.nome].min += p.min||0;
+      if (p.nota) extra[p.nome].notas.push(p.nota);
+      if (!temMarc && p.g){
+        jog[p.nome] = jog[p.nome] || {t:0, s:0, g:0};
+        jog[p.nome].g += p.g;
+      }
+    });
+  });
+
+  const cartoes = FOCO_JOGOS.map(x=>{
+    const badge = '<span class="mono" style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink);padding:1px 6px;margin-right:6px">'+x.comp+(x.jornada?" J"+x.jornada:"")+'</span>';
+    const marc = (x.marcadores||[]).length
+      ? '<div class="mono" style="font-size:9.5px;margin-top:2px">⚽ '+x.marcadores.map(m=>m[0]+" "+(m[1]||"")).join(" · ")+'</div>' : "";
+    const onze = (x.onze||[]).length
+      ? '<div class="mono" style="font-size:9px;color:var(--ink-soft);margin-top:3px">Onze: '+x.onze.join(", ")+'</div>' : "";
+    const supl = (x.supl||[]).length
+      ? '<div class="mono" style="font-size:9px;color:var(--ink-soft)">Entraram: '+x.supl.join(", ")+'</div>' : "";
+    const nota = x.nota ? '<div class="mono" style="font-size:9px;color:var(--ocre)">'+x.nota+'</div>' : "";
+    const btn = (x.comp==="Liga" && x.res && !x.jogadores)
+      ? '<button onclick="window.__apifDetalhe&&window.__apifDetalhe(\''+x.adversario.replace(/'/g,"")+'\',\''+x.onde+'\',this)" style="font:8.5px ui-monospace,monospace;padding:1px 6px;margin-top:3px;border:1px solid var(--rule);background:transparent;color:var(--ink-soft);cursor:pointer">obter detalhe via API</button>' : "";
+    return '<div style="padding:8px 0;border-bottom:1px solid var(--rule)">'+
+      '<div style="display:flex;align-items:center;gap:8px">'+badge+
+      '<span style="font-size:14px">'+(x.onde==="fora" ? x.adversario+" – "+FOCO : FOCO+" – "+x.adversario)+'</span>'+
+      '<span class="score" style="margin-left:auto;font-size:13px;padding:2px 8px'+(x.res?'':';background:transparent;color:var(--ink-soft);border:1px solid var(--rule)')+'">'+(x.res||"—")+'</span></div>'+
+      marc + onze + supl + nota + btn + '</div>';
+  }).join("");
+
+  const nomes = Object.keys(jog).sort((a,b)=> (jog[b].g-jog[a].g) || (jog[b].t-jog[a].t) || a.localeCompare(b));
+  const tabela = nomes.length ? '<div class="miniH">Jogador a jogador · acumulado do que está registado</div>'+
+    '<div class="mono" style="font-size:10px">'+
+    '<div style="display:grid;grid-template-columns:'+(Object.keys(extra).length?"1fr 44px 40px 40px 44px 40px":"1fr 44px 44px 44px")+';gap:4px;color:var(--ink-soft);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:3px"><span>Jogador</span><span style="text-align:right">Titular</span><span style="text-align:right">Supl.</span><span style="text-align:right">Golos</span>'+(Object.keys(extra).length?'<span style="text-align:right">Min</span><span style="text-align:right">Nota</span>':'')+'</div>'+
+    nomes.map(n=>{
+      const ex = extra[n];
+      const cols = Object.keys(extra).length ? "1fr 44px 40px 40px 44px 40px" : "1fr 44px 44px 44px";
+      const media = ex && ex.notas.length ? (ex.notas.reduce((a,b)=>a+b,0)/ex.notas.length).toFixed(1) : "";
+      return '<div style="display:grid;grid-template-columns:'+cols+';gap:4px;padding:3px 0;border-bottom:1px solid var(--rule)"><span>'+n+'</span><span style="text-align:right">'+jog[n].t+'</span><span style="text-align:right">'+jog[n].s+'</span><span style="text-align:right'+(jog[n].g?';font-weight:600':'')+'">'+jog[n].g+'</span>'+
+        (Object.keys(extra).length ? '<span style="text-align:right">'+(ex?ex.min:"")+'</span><span style="text-align:right'+(media>=7?';font-weight:600':'')+'">'+media+'</span>' : '')+'</div>';
+    }).join("")+
+    '</div>' : "";
+
+  box.innerHTML = '<div class="miniH">Jornada a jornada · liga e Europa</div>' + cartoes + tabela;
+}
+
+/* ---- ciclo de vida: dados -> resultados extra -> ajuste -> render ---- */
+let TODOS_DC = [], ORIGEM_DC = "";
+
+function aplicarHorarios(lista){
+  let mudou = false;
+  for (const h of (lista||[])){
+    const casa = normOF(h[0]), fora = normOF(h[1]);
+    if (!casa || !fora) continue;
+    const alvo = TODOS_DC.find(j=>j.casa===casa && j.fora===fora && j.epoca>=2026);
+    if (!alvo) continue;
+    if (h[2]) alvo.dia = h[2];
+    if (h[3]) alvo.hora = h[3];
+    if (h[4]) alvo.canal = h[4];
+    mudou = true;
+  }
+  return mudou;
+}
+window.__aplicarHorariosDC = function(lista){
+  if (aplicarHorarios(lista)){ try { refazerDC(); } catch(e){} return true; }
+  return false;
+};
+function aplicarEstats(lista){
+  let mudou = false;
+  for (const s of (lista||[])){
+    const casa = normOF(s[0]), fora = normOF(s[1]);
+    if (!casa || !fora) continue;
+    const alvo = TODOS_DC.find(j=>j.casa===casa && j.fora===fora && j.epoca>=2026);
+    if (!alvo) continue;
+    const v = i => (s[i]!==undefined && s[i]!==null && +s[i]>=0) ? +s[i] : null;
+    alvo.st = {
+      pos:[v(2),v(3)], rem:[v(4),v(5)], rb:[v(6),v(7)], cant:[v(8),v(9)],
+      am:[v(10),v(11)], vm:[v(12),v(13)], xg:[v(14),v(15)]
+    };
+    mudou = true;
+  }
+  return mudou;
+}
+window.__aplicarEstatsDC = function(lista){
+  if (aplicarEstats(lista)){ try { refazerDC(); } catch(e){} return true; }
+  return false;
+};
+function aplicarResultados(lista){
+  let mudou = false;
+  for (const r of lista){
+    const casa = normOF(r[0]), fora = normOF(r[1]);
+    if (!casa || !fora) continue;
+    const alvo = TODOS_DC.find(j=>j.casa===casa && j.fora===fora && j.gc===null && j.epoca>=2026);
+    if (alvo){ alvo.gc = +r[2]; alvo.gf = +r[3]; mudou = true; }
+  }
+  return mudou;
+}
+
+function refazerDC(){
+  const jogados = TODOS_DC.filter(j=>j.gc!==null);
+  if (jogados.length < 300) throw new Error("histórico insuficiente");
+  const ultimo = new Date(Math.max(...jogados.map(j=>+j.data)));
+  const pend = TODOS_DC.filter(j=>j.gc===null);
+
+  // jornada corrente: a mais avançada com resultados; se completa, avança para a seguinte.
+  // Jogos adiados de jornadas anteriores são listados à parte, não prendem o painel ao passado.
+  let jornadaJogos = [], rotulo = "", emAtraso = [];
+  {
+    const ep = Math.max(...TODOS_DC.map(j=>j.epoca));
+    const epAll = TODOS_DC.filter(j=>j.epoca===ep);
+    let jorAtual = 1;
+    for (let k=1; k<=34; k++){
+      const g = epAll.filter(j=>j.jornada===k);
+      if (!g.length) break;
+      if (g.some(j=>j.gc!==null)) jorAtual = k;
+    }
+    const daAtual = epAll.filter(j=>j.jornada===jorAtual);
+    if (daAtual.length && daAtual.every(j=>j.gc!==null) && epAll.some(j=>j.jornada===jorAtual+1))
+      jorAtual++;
+    jornadaJogos = epAll.filter(j=>j.jornada===jorAtual);
+    emAtraso = epAll.filter(j=>j.gc===null && j.jornada<jorAtual);
+    if (jornadaJogos.length) rotulo = jorAtual+".ª jornada de "+ep+"/"+String(ep+1).slice(2);
+  }
+
+  // modelo PRÉ-jornada (para avaliar previsões honestamente) e modelo ACTUAL (mapa)
+  const corte = jornadaJogos.length
+    ? new Date(Math.min(...jornadaJogos.map(j=>+j.data)))
+    : new Date();
+  // Onde há estatísticas, o alvo do ajuste mistura golos com xG (50/50):
+  // com poucas jornadas, o xG diz mais sobre a equipa do que o resultado.
+  for (const j of jogados){
+    if (j.st && j.st.xg && j.st.xg[0]!==null && j.st.xg[1]!==null){
+      j.yc = 0.5*j.gc + 0.5*j.st.xg[0];
+      j.yf = 0.5*j.gf + 0.5*j.st.xg[1];
+    } else if (j.st && j.st.rb && j.st.rb[0]!==null && j.st.rem && j.st.rem[0]!==null){
+      // sem xG oficial: aproximação por remates (0.06/jogada + 0.14/enquadrado)
+      j.yc = 0.5*j.gc + 0.5*(0.06*j.st.rem[0] + 0.14*j.st.rb[0]);
+      j.yf = 0.5*j.gf + 0.5*(0.06*j.st.rem[1] + 0.14*j.st.rb[1]);
+    } else { delete j.yc; delete j.yf; }
+  }
+  const mPre = ajustarDC(jogados.filter(j=>j.data < corte), corte);
+  const mAtual = ajustarDC(jogados, new Date());
+
+  pintarMapaDC(mAtual);
+  pintarPrevDC(mPre, jornadaJogos);
+
+  // O resto do dashboard deriva dos mesmos resultados: fonte única.
+  const epAtual = Math.max(...TODOS_DC.map(j=>j.epoca));
+  const daEpoca = TODOS_DC.filter(j=>j.epoca===epAtual);
+  if (typeof estado === "object" && daEpoca.some(j=>j.gc!==null)){
+    const linhas = {};
+    Object.keys(SIGLAS).forEach(e=>linhas[e]={nome:e,sigla:SIGLAS[e],j:0,v:0,e:0,d:0,gm:0,gs:0,pts:0,forma:"",xg:0,xga:0});
+    daEpoca.filter(j=>j.gc!==null).sort((a,b)=>a.data-b.data).forEach(j=>{
+      const C=linhas[j.casa], F=linhas[j.fora];
+      if (!C || !F) return;
+      C.j++; F.j++; C.gm+=j.gc; C.gs+=j.gf; F.gm+=j.gf; F.gs+=j.gc;
+      if (j.gc>j.gf){ C.v++; F.d++; C.pts+=3; C.forma+="V"; F.forma+="D"; }
+      else if (j.gc<j.gf){ F.v++; C.d++; F.pts+=3; F.forma+="V"; C.forma+="D"; }
+      else { C.e++; F.e++; C.pts++; F.pts++; C.forma+="E"; F.forma+="E"; }
+    });
+    estado.tabela = Object.values(linhas);
+    if (rotulo) estado.jornada = parseInt(rotulo) || estado.jornada;
+    const DIAS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"], MES=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+    estado.jogos = jornadaJogos.map(j=>{
+      const dia = j.dia || (DIAS[j.data.getUTCDay()]+" "+j.data.getUTCDate()+" "+MES[j.data.getUTCMonth()]);
+      let quando = dia;
+      if (j.hora){
+        const et = horaET(j.hora);
+        quando += " · "+j.hora+" Lisboa"+(et ? " · "+et+" ET" : "");
+      }
+      const canais = j.canal ? j.canal+" · EUA: "+CANAL_US : null;
+      return [quando, j.casa, j.fora, j.gc!==null ? j.gc+"-"+j.gf : "", canais];
+    });
+    pintarCorrida(); pintarTabela(); pintarJogos();
+    if (typeof pintarAnalise === "function") pintarAnalise();
+  }
+
+  const disputados = jornadaJogos.filter(j=>j.gc!==null).length;
+  const atrasoTxt = emAtraso.length
+    ? " Em atraso (calendário europeu): "+emAtraso.map(x=>"J"+x.jornada+" "+(SIGLAS[x.casa]||x.casa)+"-"+(SIGLAS[x.fora]||x.fora)).join(", ")+"."
+    : "";
+  document.getElementById("mdlNota").textContent = rotulo
+    ? rotulo+" — "+disputados+" de "+jornadaJogos.length+" jogos disputados."+atrasoTxt+" "+
+      "As probabilidades são sempre as de ANTES da jornada; nos jogos terminados, servem de avaliação, não de leitura do que aconteceu. "+
+      "Barra fina nos jogos por disputar: mercado sem margem."
+    : "";
+  document.getElementById("mdlHead").textContent = jogados.length+" jogos · 8 épocas";
+  try { pintarFoco(); } catch(e){}
+  const diasAtraso = Math.floor((Date.now() - +ultimo)/864e5);
+  const aviso = diasAtraso >= 3 ? " · ATENÇÃO: "+diasAtraso+" dias sem resultado novo — a leitura ao vivo está a recuperar" : "";
+  document.getElementById("mdlInfo").textContent = aviso.replace(" · ","") ? "" : "";
+  document.getElementById("mdlInfo").textContent =
+    "factor casa "+Math.exp(mAtual.gama).toFixed(2)+"x · resultados até "+
+    ultimo.toLocaleDateString("pt-PT",{day:"numeric",month:"short",year:"numeric"})+
+    " ("+ORIGEM_DC+")"+aviso;
+}
+
+window.__refazerDC = function(){ refazerDC(); };
+window.__aplicarResultadosDC = function(jogosEstado){
+  // jogosEstado: linhas [quando, casa, fora, "2-1"] vindas da leitura ao vivo
+  const lista = [];
+  for (const j of (jogosEstado||[])){
+    const m = String(j[3]||"").match(/^\s*(\d+)\s*[-–x]\s*(\d+)\s*$/);
+    if (m) lista.push([j[1], j[2], +m[1], +m[2]]);
+  }
+  if (lista.length && aplicarResultados(lista)){
+    try { refazerDC(); } catch(e){}
+    return true;
+  }
+  return false;
+};
+
+async function carregarModelo(){
+  const cab=document.getElementById("mdlHead");
+  try{
+    const respostas = await Promise.all(OF_EPOCAS.map(([f])=>
+      fetch(OF_BASE+f).then(r=>r.ok?r.text():null).catch(()=>null)));
+    let todos=[];
+    respostas.forEach((txt,i)=>{
+      if (txt) todos = todos.concat(parseOF(txt, OF_EPOCAS[i][1]));
+    });
+    ORIGEM_DC = "openfootball ao vivo, atualização comunitária — pode atrasar";
+    if (todos.filter(j=>j.gc!==null).length < 300){
+      const base = Date.UTC(2019,0,1);
+      todos = OF_EMBED.jogos.map(l=>{
+        const j = {
+          epoca: 2019+l[0], jornada: l[1], data: new Date(base + l[2]*864e5),
+          casa: OF_EMBED.equipas[l[3]], fora: OF_EMBED.equipas[l[4]],
+          gc: l[5] < 0 ? null : l[5], gf: l[6] < 0 ? null : l[6],
+        };
+        if (l[7] !== undefined && l[7] >= 0) j.st = { xg:[l[7], l[8]] };
+        return j;
+      });
+      ORIGEM_DC = "histórico embebido";
+    }
+    TODOS_DC = todos;
+    aplicarResultados(RESULTADOS_SEED);
+    aplicarEstats(ESTATS_SEED);
+    aplicarHorarios(HORARIOS_SEED);
+    aplicarContexto(CONTEXTO_SEED);
+    refazerDC();
+    if (FOCO_EXTRA.length && window.__aplicarFocoDC) window.__aplicarFocoDC(FOCO_EXTRA);
+    pintarFoco();
+    setTimeout(()=>{ const c=document.getElementById("apifChave");
+      if (c && c.value.trim() && !APIF.ok) apifLigar(); }, 800);
+  }catch(e){
+    cab.textContent = "indisponível";
+    document.getElementById("mdlMapa").innerHTML =
+      '<p class="empty-note" style="padding:12px">Não deu para montar o modelo ('+e.message+'). O resto do dashboard continua a funcionar.</p>';
+  }
+}
+carregarModelo();
+})();
+
+</script>
+</body>
+</html>
