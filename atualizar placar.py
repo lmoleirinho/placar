@@ -173,6 +173,79 @@ def fase_benfica(html_texto):
                             html_texto, count=1)
     return html_texto, novos, erros
 
+
+# ---------------- fase 2b: detalhe de TODAS as equipas via FBref ----------------
+FBREF_CAL = "https://fbref.com/en/comps/32/schedule/Primeira-Liga-Scores-and-Fixtures"
+MAX_PAGS_LIGA = 10
+
+def fb_calendario_liga():
+    pag = fb_destapar(fb_get(FBREF_CAL))
+    m = re.search(r'<table[^>]*id="sched[^"]*"(.*?)</table>', pag, re.S)
+    if not m:
+        raise RuntimeError("tabela de calendário da liga não encontrada — formato mudou?")
+    jogos = []
+    for lm in re.finditer(r"<tr[^>]*>(.*?)</tr>", m.group(1), re.S):
+        c = fb_celulas(lm.group(1))
+        res = (c.get("score", "") or "").replace("–", "-").replace("—", "-").strip()
+        if not c.get("home_team") or not re.match(r"^\d+-\d+$", res):
+            continue
+        rel = re.search(r'data-stat="match_report"[^>]*>.*?href="([^"]+)"', lm.group(1), re.S)
+        jogos.append({"casa": c["home_team"], "fora": c.get("away_team", ""),
+                      "res": res, "rel": ("https://fbref.com" + rel.group(1)) if rel else None})
+    return jogos
+
+def fb_detalhe_ambas(url):
+    pag = fb_destapar(fb_get(url))
+    equipas = {}
+    for tm in re.finditer(r'<caption>([^<]*?) Player Stats.*?</caption>(.*?)</table>', pag, re.S):
+        nome_fb = tm.group(1).strip()
+        jogadores = []
+        for lm in re.finditer(r"<tr[^>]*>(.*?)</tr>", tm.group(2), re.S):
+            c = fb_celulas(lm.group(1))
+            if not c.get("player") or c["player"] == "Player":
+                continue
+            try: mins = int(c.get("minutes", "0") or 0)
+            except ValueError: mins = 0
+            try: gols = int(c.get("goals", "0") or 0)
+            except ValueError: gols = 0
+            jogadores.append({"nome": c["player"], "min": mins, "g": gols})
+        if jogadores:
+            equipas[nome_fb] = {"onze": [j["nome"] for j in jogadores[:11]],
+                                "supl": [j["nome"] for j in jogadores[11:] if j["min"] > 0],
+                                "jog": jogadores}
+    if len(equipas) < 2:
+        raise RuntimeError("tabelas das duas equipas não encontradas em " + url)
+    return equipas
+
+def fase_liga(html_texto, equipas_dash):
+    m = re.search(r"const DETALHE_LIGA = (\[.*?\]); //", html_texto)
+    if not m:
+        raise RuntimeError("linha DETALHE_LIGA não encontrada — dashboard antigo?")
+    det = json.loads(m.group(1))
+    ja = {(d["c"], d["f"], d["r"]) for d in det}
+    novos, erros = 0, []
+    for jg in fb_calendario_liga():
+        if novos >= MAX_PAGS_LIGA or not jg["rel"]:
+            continue
+        casa = canonico(jg["casa"], equipas_dash) or jg["casa"]
+        fora = canonico(jg["fora"], equipas_dash) or jg["fora"]
+        if (casa, fora, jg["res"]) in ja:
+            continue
+        time.sleep(PAUSA)
+        try:
+            eqs = fb_detalhe_ambas(jg["rel"])
+        except RuntimeError as e:
+            erros.append(str(e)); continue
+        entrada = {"c": casa, "f": fora, "r": jg["res"], "eq": {}}
+        for nome_fb, dados in eqs.items():
+            entrada["eq"][canonico(nome_fb, equipas_dash) or nome_fb] = dados
+        det.append(entrada); ja.add((casa, fora, jg["res"])); novos += 1
+    if novos:
+        html_texto = re.sub(r"const DETALHE_LIGA = \[.*?\]; //",
+                            "const DETALHE_LIGA = " + json.dumps(det, ensure_ascii=False) + "; //",
+                            html_texto, count=1)
+    return html_texto, novos, erros
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__); sys.exit(1)
@@ -241,14 +314,14 @@ def main():
     else:
         print("Nada para escrever — o dashboard já estava em dia com o CSV.")
 
-    if "--benfica" in sys.argv:
-        print("FBref: a procurar jogos do Benfica sem detalhe (1 pedido/4 s)…")
+    if "--benfica" in sys.argv or "--liga" in sys.argv:
+        print("FBref: a procurar jogos da liga sem detalhe (1 pedido/4 s, máx. %d/corrida)…" % MAX_PAGS_LIGA)
         try:
             html2 = open(caminho_html, encoding="utf-8").read()
-            html2, novos, erros = fase_benfica(html2)
+            html2, novos, erros = fase_liga(html2, equipas)
             if novos:
                 open(caminho_html, "w", encoding="utf-8").write(html2)
-            print("FBref: %d jogos detalhados nesta corrida." % novos)
+            print("FBref: %d jogos detalhados nesta corrida (as 18 equipas)." % novos)
             for e in erros[:5]:
                 print("  aviso FBref:", e)
         except Exception as e:
